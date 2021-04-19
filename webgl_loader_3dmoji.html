@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - glTF loader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+
+		<script src="omggif.js"></script>
+
+	</head>
+
+	<body>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader<br />
+			Battle Damaged Sci-fi Helmet by
+			<a href="https://sketchfab.com/theblueturtle_" target="_blank" rel="noopener">theblueturtle_</a><br />
+			<a href="https://hdrihaven.com/hdri/?h=royal_esplanade" target="_blank" rel="noopener">Royal Esplanade</a> by <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
+		</div>
+
+		<canvas id="canvas"></canvas><br/><br/>
+
+		<!-- <button id="button">Generate GIF</button> -->
+		<!-- <progress id="progress" value="0" max="1" style="display:none"></progress> -->
+
+		<script type="module">
+
+			import * as THREE from './three.module.js';
+
+			import { OrbitControls } from './OrbitControls.js';
+			import { GLTFLoader } from './GLTFLoader.js';
+			import { FBXLoader } from './FBXLoader.js'
+			import { RGBELoader } from './RGBELoader.js';
+			import { RoughnessMipmapper } from './RoughnessMipmapper.js';
+			import { GUI } from './dat.gui.module.js';
+
+
+			let camera, scene, renderer, gui, hikemoji3d, mixer;
+			const clock = new THREE.Clock();
+
+			init();
+			// animate();
+
+			function generateGIF( element, renderFunction, duration = 1, fps = 30 ) {
+
+				const frames = duration * fps;
+
+				const canvas = document.createElement( 'canvas' );
+				canvas.width = element.width;
+				canvas.height = element.height;
+
+				const context = canvas.getContext( '2d' );
+
+				const buffer = new Uint8Array( canvas.width * canvas.height * frames * 5 );
+				const pixels = new Uint8Array( canvas.width * canvas.height );
+				const writer = new GifWriter( buffer, canvas.width, canvas.height, { loop: 0 } );
+
+				let current = 0;
+
+				return new Promise( async function addFrame( resolve ) {
+					renderFunction( current / frames );
+					context.drawImage( element, 0, 0 );
+					const data = context.getImageData( 0, 0, canvas.width, canvas.height ).data;
+					const palette = [];
+
+					for ( var j = 0, k = 0, jl = data.length; j < jl; j += 4, k ++ ) {
+						const r = Math.floor( data[ j + 0 ] * 0.1 ) * 10;
+						const g = Math.floor( data[ j + 1 ] * 0.1 ) * 10;
+						const b = Math.floor( data[ j + 2 ] * 0.1 ) * 10;
+						const color = r << 16 | g << 8 | b << 0;
+
+						const index = palette.indexOf( color );
+
+						if ( index === -1 ) {
+							pixels[ k ] = palette.length;
+							palette.push( color );
+						} else {
+							pixels[ k ] = index;
+						}
+					}
+					// Force palette to be power of 2
+					let powof2 = 1;
+					while ( powof2 < palette.length ) powof2 <<= 1;
+					palette.length = powof2;
+					console.log('Palette length:', palette.length);
+					palette.length = 256;
+
+					const delay = 100 / fps; // Delay in hundredths of a sec (100 = 1s)
+					const options = { palette: new Uint32Array( palette ), delay: delay };
+					writer.addFrame( 0, 0, canvas.width, canvas.height, pixels, options );
+					current ++;
+
+					progress.value = current / frames;
+					if ( current < frames ) {
+						await setTimeout( addFrame, 0, resolve );
+					} else {
+						resolve( buffer.subarray( 0, writer.end() ) );
+					}
+				} );
+			}
+
+			// button.addEventListener( 'click', async function () {
+
+			// 	button.style.display = 'none';
+			// 	progress.style.display = '';
+			// 	const buffer = await generateGIF( canvas, render, 4, 30 );
+
+			// 	button.style.display = '';
+			// 	progress.style.display = 'none';
+
+			// 	const blob = new Blob( [ buffer ], { type: 'image/gif' } );
+			// 	const link = document.createElement( 'a' );
+			// 	link.href = URL.createObjectURL( blob );
+			// 	link.download = 'animation.gif';
+			// 	link.dispatchEvent( new MouseEvent( 'click' ) );
+			// } );
+
+
+			function createGui(model) {
+				gui = new GUI();
+				var face = model.getObjectByName('Basebody_Geo_1');
+
+				// const blendshapes = Object.keys( face.morphTargetDictionary );
+				// const blendshapes_folder = gui.addFolder('Blendshapes');
+				// for ( let i = 0; i < blendshapes.length; i ++ ) {
+				// 	blendshapes_folder.add( face.morphTargetInfluences, i, -5, 5, 0.01 ).name(blendshapes[ i ] );
+				// }
+				// blendshapes_folder.open();
+			}
+
+			function log_info() {
+				if(hikemoji3d) {
+					console.log(camera.position);
+					console.log(hikemoji3d.scene.children[0].children[0].position)
+				}
+			}
+
+			function init() {
+
+				const container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
+				camera.position.set( - 2.776, 1.245, 2.802 );
+
+				scene = new THREE.Scene();
+
+				new RGBELoader()
+					.setDataType( THREE.UnsignedByteType )
+					.setPath( 'textures/equirectangular/' )
+					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+						const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+
+						scene.background = envMap;
+						scene.environment = envMap;
+
+						texture.dispose();
+						pmremGenerator.dispose();
+						// model
+
+						// use of RoughnessMipmapper is optional
+						const roughnessMipmapper = new RoughnessMipmapper( renderer );
+
+						const loader = new GLTFLoader().setPath( 'models/gltf/LODA-EmbedMed_out/' );
+						loader.load( 'LODA-EmbedMed.gltf', function ( gltf ) {
+
+							hikemoji3d = gltf;
+							var moji_scene = gltf.scene;
+							createGui(moji_scene);
+
+							mixer = new THREE.AnimationMixer(moji_scene);
+							hikemoji3d.scene.children[0].children[0].position.set(0, -0.4, 0);
+
+							var fbxLoader = new FBXLoader();
+							fbxLoader.load('models/fbx/Unarmed Jump.fbx', 
+								function(anim_obj) {
+									const animation = mixer.clipAction(anim_obj.animations[0]);
+									animation.play();
+									console.log('Animation loaded successfully');
+								},
+								undefined,
+								function() {
+									console.log('Animation loading failed');
+								}
+							)
+
+							scene.add( gltf.scene );
+							roughnessMipmapper.dispose();
+
+							render(0);
+							console.log('Hikemoji model loaded in', clock.getDelta());
+
+						} );
+
+					} );
+
+				const canvas = document.getElementById( 'canvas' );
+				// const button = document.getElementById( 'button' );
+				// const progress = document.getElementById( 'progress' );
+
+				renderer = new THREE.WebGLRenderer( { canvas: canvas } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.toneMappingExposure = 1;
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				container.appendChild( renderer.domElement );
+
+				const pmremGenerator = new THREE.PMREMGenerator( renderer );
+				pmremGenerator.compileEquirectangularShader();
+
+				const controls = new OrbitControls( camera, renderer.domElement );
+				controls.minDistance = 2;
+				controls.maxDistance = 10;
+				controls.target.set( 0, 0, - 0.2);
+				controls.update();
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+
+				const delta = clock.getDelta();
+				render(delta);
+				log_info();
+				// if(mixer) mixer.update(delta);
+				// camera.lookAt(hikemoji3d.scene.position);
+
+			}
+
+			function render(progress) {
+				if(hikemoji3d) {
+					hikemoji3d.scene.rotation.y += progress;
+				}
+				renderer.render( scene, camera );
+			}
+
+		</script>
+
+	</body>
+</html>
