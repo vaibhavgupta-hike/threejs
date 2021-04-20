@@ -8,16 +8,26 @@
 
 		<script src="omggif.js"></script>
 
+		<style>
+
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .full-screen {
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 0;
+              bottom: 0;
+              background-color: green;
+        }
+    </style>
+
 	</head>
 
 	<body>
-		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GLTFLoader<br />
-			Battle Damaged Sci-fi Helmet by
-			<a href="https://sketchfab.com/theblueturtle_" target="_blank" rel="noopener">theblueturtle_</a><br />
-			<a href="https://hdrihaven.com/hdri/?h=royal_esplanade" target="_blank" rel="noopener">Royal Esplanade</a> by <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
-		</div>
-
 		<canvas id="canvas"></canvas><br/><br/>
 
 		<!-- <button id="button">Generate GIF</button> -->
@@ -144,62 +154,51 @@
 				camera.position.set( - 2.776, 1.245, 2.802 );
 
 				scene = new THREE.Scene();
+				scene.background = null;
 
-				new RGBELoader()
-					.setDataType( THREE.UnsignedByteType )
-					.setPath( 'textures/equirectangular/' )
-					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+				const light1 = new THREE.AmbientLight( 0xffffff ); // soft white light
+				scene.add( light1 );
 
-						const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+				const light2 = new THREE.PointLight( 0xffffff, 1, 100 );
+				light2.position.set( 0, 0, 0 );
+				scene.add( light2 );
 
-						scene.background = envMap;
-						scene.environment = envMap;
+				const loader = new GLTFLoader().setPath( 'models/gltf/LODA-EmbedMed_out/' );
+				loader.load( 'LODA-EmbedMed.gltf', function ( gltf ) {
 
-						texture.dispose();
-						pmremGenerator.dispose();
-						// model
+					hikemoji3d = gltf;
+					var moji_scene = gltf.scene;
+					createGui(moji_scene);
 
-						// use of RoughnessMipmapper is optional
-						const roughnessMipmapper = new RoughnessMipmapper( renderer );
+					mixer = new THREE.AnimationMixer(moji_scene);
+					hikemoji3d.scene.children[0].children[0].position.set(0, -0.4, 0);
 
-						const loader = new GLTFLoader().setPath( 'models/gltf/LODA-EmbedMed_out/' );
-						loader.load( 'LODA-EmbedMed.gltf', function ( gltf ) {
+					var fbxLoader = new FBXLoader();
+					fbxLoader.load('models/fbx/Unarmed Jump.fbx', 
+						function(anim_obj) {
+							const animation = mixer.clipAction(anim_obj.animations[0]);
+							animation.play();
+							console.log('Animation loaded successfully');
+						},
+						undefined,
+						function() {
+							console.log('Animation loading failed');
+						}
+					)
 
-							hikemoji3d = gltf;
-							var moji_scene = gltf.scene;
-							createGui(moji_scene);
+					scene.add( gltf.scene );
+					// roughnessMipmapper.dispose();
 
-							mixer = new THREE.AnimationMixer(moji_scene);
-							hikemoji3d.scene.children[0].children[0].position.set(0, -0.4, 0);
+					render(0);
+					console.log('Hikemoji model loaded in', clock.getDelta());
 
-							var fbxLoader = new FBXLoader();
-							fbxLoader.load('models/fbx/Unarmed Jump.fbx', 
-								function(anim_obj) {
-									const animation = mixer.clipAction(anim_obj.animations[0]);
-									animation.play();
-									console.log('Animation loaded successfully');
-								},
-								undefined,
-								function() {
-									console.log('Animation loading failed');
-								}
-							)
-
-							scene.add( gltf.scene );
-							roughnessMipmapper.dispose();
-
-							render(0);
-							console.log('Hikemoji model loaded in', clock.getDelta());
-
-						} );
-
-					} );
+				} );
 
 				const canvas = document.getElementById( 'canvas' );
 				// const button = document.getElementById( 'button' );
 				// const progress = document.getElementById( 'progress' );
 
-				renderer = new THREE.WebGLRenderer( { canvas: canvas } );
+				renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.toneMapping = THREE.ACESFilmicToneMapping;
