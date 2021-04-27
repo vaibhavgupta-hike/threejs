@@ -189,8 +189,9 @@
 					scene.add( gltf.scene );
 					// roughnessMipmapper.dispose();
 
+					console.log('Hikemoji model loaded in', clock.getElapsedTime());
 					render(0);
-					console.log('Hikemoji model loaded in', clock.getDelta());
+					console.log('Hikemoji model loaded in', clock.getElapsedTime());
 
 				} );
 
@@ -229,7 +230,7 @@
 			function animate() {
 				requestAnimationFrame(animate);
 
-				const delta = clock.getDelta();
+				const delta = clock.getElapsedTime();
 				render(delta);
 				log_info();
 				// if(mixer) mixer.update(delta);
@@ -242,6 +243,7 @@
 					hikemoji3d.scene.rotation.y += progress;
 				}
 				renderer.render( scene, camera );
+				console.log("Ran in ", clock.getElapsedTime(), 'time')
 			}
 
 		</script>
