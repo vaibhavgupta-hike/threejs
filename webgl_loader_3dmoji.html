@@ -123,13 +123,14 @@
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
-				camera.position.set( - 2.776, 1.245, 2.802 );
+				camera.position.set( 0.1, -0.24, 3.0 );
+				camera.rotation.set( 0, -180, 0);
 
 				scene = new THREE.Scene();
 				scene.background = null;
 
-				const light1 = new THREE.AmbientLight( 0xffffff ); // soft white light
-				scene.add( light1 );
+				// const light1 = new THREE.AmbientLight( 0xffffff ); // soft white light
+				// scene.add( light1 );
 
 				const light2 = new THREE.PointLight( 0xffffff, 1, 100 );
 				light2.position.set( 0, 0, 0 );
@@ -142,7 +143,8 @@
 					var moji_scene = gltf.scene;
 
 					mixer = new THREE.AnimationMixer(moji_scene);
-					hikemoji3d.scene.children[0].children[0].position.set(0, -0.4, 0);
+					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.715, 0);
+					hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
 
 					var action = mixer.clipAction( gltf.animations[0] );
 					action.play();
