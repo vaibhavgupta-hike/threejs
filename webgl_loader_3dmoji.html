@@ -147,6 +147,9 @@
 					hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
 
 					var action = mixer.clipAction( gltf.animations[0] );
+					action.setLoop(THREE.LoopOnce);
+					action.clampWhenFinished = true;
+					action.enable = true;
 					action.play();
 
 					console.log('gltf.animations:', gltf.animations)
