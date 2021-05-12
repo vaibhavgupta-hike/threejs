@@ -49,7 +49,7 @@
 			const clock = new THREE.Clock();
 
 			init();
-			// animate();
+			animate();
 
 			function generateGIF( element, renderFunction, duration = 1, fps = 30 ) {
 
@@ -109,34 +109,6 @@
 				} );
 			}
 
-			// button.addEventListener( 'click', async function () {
-
-			// 	button.style.display = 'none';
-			// 	progress.style.display = '';
-			// 	const buffer = await generateGIF( canvas, render, 4, 30 );
-
-			// 	button.style.display = '';
-			// 	progress.style.display = 'none';
-
-			// 	const blob = new Blob( [ buffer ], { type: 'image/gif' } );
-			// 	const link = document.createElement( 'a' );
-			// 	link.href = URL.createObjectURL( blob );
-			// 	link.download = 'animation.gif';
-			// 	link.dispatchEvent( new MouseEvent( 'click' ) );
-			// } );
-
-
-			function createGui(model) {
-				gui = new GUI();
-				var face = model.getObjectByName('Basebody_Geo_1');
-
-				// const blendshapes = Object.keys( face.morphTargetDictionary );
-				// const blendshapes_folder = gui.addFolder('Blendshapes');
-				// for ( let i = 0; i < blendshapes.length; i ++ ) {
-				// 	blendshapes_folder.add( face.morphTargetInfluences, i, -5, 5, 0.01 ).name(blendshapes[ i ] );
-				// }
-				// blendshapes_folder.open();
-			}
 
 			function log_info() {
 				if(hikemoji3d) {
@@ -163,28 +135,19 @@
 				light2.position.set( 0, 0, 0 );
 				scene.add( light2 );
 
-				const loader = new GLTFLoader().setPath( 'models/gltf/LODA-EmbedMed_out/' );
-				loader.load( 'LODA-EmbedMed.gltf', function ( gltf ) {
+				const loader = new GLTFLoader().setPath( 'models/gltf/MaleLODA_Rig_V02_Flip_out/' );
+				loader.load( 'MaleLODA_Rig_V02_Flip.gltf', function ( gltf ) {
 
 					hikemoji3d = gltf;
 					var moji_scene = gltf.scene;
-					createGui(moji_scene);
 
 					mixer = new THREE.AnimationMixer(moji_scene);
 					hikemoji3d.scene.children[0].children[0].position.set(0, -0.4, 0);
 
-					var fbxLoader = new FBXLoader();
-					fbxLoader.load('models/fbx/Unarmed Jump.fbx', 
-						function(anim_obj) {
-							const animation = mixer.clipAction(anim_obj.animations[0]);
-							animation.play();
-							console.log('Animation loaded successfully');
-						},
-						undefined,
-						function() {
-							console.log('Animation loading failed');
-						}
-					)
+					var action = mixer.clipAction( gltf.animations[0] );
+					action.play();
+
+					console.log('gltf.animations:', gltf.animations)
 
 					scene.add( gltf.scene );
 					// roughnessMipmapper.dispose();
@@ -196,8 +159,6 @@
 				} );
 
 				const canvas = document.getElementById( 'canvas' );
-				// const button = document.getElementById( 'button' );
-				// const progress = document.getElementById( 'progress' );
 
 				renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -230,20 +191,20 @@
 			function animate() {
 				requestAnimationFrame(animate);
 
-				const delta = clock.getElapsedTime();
+				const delta = clock.getDelta();
 				render(delta);
-				log_info();
-				// if(mixer) mixer.update(delta);
+				// log_info();
+				if(mixer) mixer.update(delta);
 				// camera.lookAt(hikemoji3d.scene.position);
 
 			}
 
 			function render(progress) {
-				if(hikemoji3d) {
-					hikemoji3d.scene.rotation.y += progress;
-				}
+				// if(hikemoji3d) {
+				// 	hikemoji3d.scene.rotation.y += progress;
+				// }
 				renderer.render( scene, camera );
-				console.log("Ran in ", clock.getElapsedTime(), 'time')
+				// console.log("Ran in ", clock.getElapsedTime(), 'time')
 			}
 
 		</script>
