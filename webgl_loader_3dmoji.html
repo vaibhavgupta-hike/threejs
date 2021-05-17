@@ -102,8 +102,8 @@
 					mixer = new THREE.AnimationMixer(moji_scene);
 
 					var action = mixer.clipAction( gltf.animations[0] );
-					action.setLoop(THREE.LoopOnce);
-					action.clampWhenFinished = true;
+					// action.setLoop(THREE.LoopOnce);
+					// action.clampWhenFinished = true;
 					action.enable = true;
 					action.play();
 
@@ -147,11 +147,13 @@
 				initLights();
 				initHikeMojiModel();
 
-				// var geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
-				// var material = new THREE.MeshPhongMaterial( { color: 0xe1e1e1 } );
-				// var floor = new THREE.Mesh( geometry, material );
-				// floor.rotateX( - Math.PI / 2);
-				// scene.add( floor );
+				var geometry = new THREE.PlaneGeometry( 1000, 1000);
+				var material = new THREE.MeshPhongMaterial( { color: 0xe5e5e5 } );
+				var floor = new THREE.Mesh( geometry, material );
+				floor.position.y = -0.745;
+				floor.rotateX( - Math.PI / 2);
+				scene.add( floor );
+				console.log('floor position:', floor.position)
 				
 
 				const pmremGenerator = new THREE.PMREMGenerator( renderer );
