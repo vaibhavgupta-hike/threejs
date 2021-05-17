@@ -78,8 +78,8 @@
 			}
 
 			function initHikeMojiModel() {
-				const loader = new GLTFLoader().setPath( 'models/gltf/MaleLODA_Rig_V02_Flip_out/' );
-				loader.load( 'MaleLODA_Rig_V02_Flip.gltf', function ( gltf ) {
+				const loader = new GLTFLoader().setPath( 'models/gltf/Male_Anim_out/' );
+				loader.load( 'Male_Anim.gltf', function ( gltf ) {
 
 					hikemoji3d = gltf;
 					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.705, 0);
@@ -104,8 +104,8 @@
 					mixer = new THREE.AnimationMixer(moji_scene);
 
 					var action = mixer.clipAction( gltf.animations[0] );
-					// action.setLoop(THREE.LoopOnce);
-					// action.clampWhenFinished = true;
+					action.setLoop(THREE.LoopOnce);
+					action.clampWhenFinished = true;
 					action.enable = true;
 					action.play();
 
@@ -150,7 +150,8 @@
 					format: 'webm',
 					framerate: 60,
 					verbose: true,
-					timeLimit: 6
+					timeLimit: 2,
+					quality: 100
 				} );
 			}
 
