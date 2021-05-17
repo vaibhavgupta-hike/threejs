@@ -29,10 +29,6 @@
 
 	<body>
 		<canvas id="canvas"></canvas><br/><br/>
-
-		<!-- <button id="button">Generate GIF</button> -->
-		<!-- <progress id="progress" value="0" max="1" style="display:none"></progress> -->
-
 		<script type="module">
 
 			import * as THREE from './three.module.js';
@@ -45,45 +41,27 @@
 			import { GUI } from './dat.gui.module.js';
 
 
-			let camera, scene, renderer, gui, hikemoji3d, mixer;
+			let camera, scene, renderer, hikemoji3d, mixer, container;
 			const clock = new THREE.Clock();
 
 			init();
 			animate();
 
-			function log_info() {
-				if(hikemoji3d) {
-					console.log(camera.position);
-					console.log(hikemoji3d.scene.children[0].children[0].position)
-				}
-			}
-
-			function init() {
-
-				const container = document.createElement( 'div' );
-				document.body.appendChild( container );
-
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
-				camera.position.set( 0.1, 0.1, 1.88 );
-				camera.rotation.set( 0, -180, 0);
-				camera.fov = 50;
-
-				scene = new THREE.Scene();
-				scene.background = null;
-
+			function initLights() {
 				var camera_global = (-0.09983361, 0.5368214, -0.9119075)
+				// camera_global = (0, 0, 0)
 
-				const filler_left = new THREE.PointLight( 0xE1EFFF, 1, 100 );
+				const filler_left = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 				filler_left.position.set( -0.3 + camera_global[0], -0.35 + camera_global[1], 1.04 + camera_global[2] );
 				filler_left.rotation.set(25.08, 154, 10.3);
 				scene.add( filler_left );
 
-				const filler_right = new THREE.PointLight( 0xE1EFFF, 1, 100 );
+				const filler_right = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 				filler_right.position.set( 0.78 + camera_global[0], -0.35 + camera_global[1], 1.04 + camera_global[2] );
 				filler_right.rotation.set(25.08, 154, 10.3);
 				scene.add( filler_right );
 
-				const filler_up = new THREE.PointLight( 0xE1EFFF, 1, 100 );
+				const filler_up = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 				filler_up.position.set( 0.232 + camera_global[0], 0.3 + camera_global[1], 1.18 + camera_global[2] );
 				filler_up.rotation.set(25.08, 154, 10.3);
 				scene.add( filler_up );
@@ -93,8 +71,13 @@
 				key_center.rotation.set(-0.04, -180, 39.5);
 				scene.add( key_center );
 
-				const loader = new GLTFLoader().setPath( 'models/gltf/MaleLODA_Rig_V02_Flip_out/' );
-				loader.load( 'MaleLODA_Rig_V02_Flip.gltf', function ( gltf ) {
+				const light = new THREE.AmbientLight( 0xffffff ); // soft white light
+				scene.add( light );
+			}
+
+			function initHikeMojiModel() {
+				const loader = new GLTFLoader().setPath( 'models/gltf/v4.MaleLODA_Tex_out/' );
+				loader.load( 'v4.MaleLODA_Tex.gltf', function ( gltf ) {
 
 					hikemoji3d = gltf;
 					var moji_scene = gltf.scene;
@@ -103,13 +86,13 @@
 					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.715, 0);
 					hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
 
-					var action = mixer.clipAction( gltf.animations[0] );
-					action.setLoop(THREE.LoopOnce);
-					action.clampWhenFinished = true;
-					action.enable = true;
-					action.play();
+					// var action = mixer.clipAction( gltf.animations[0] );
+					// action.setLoop(THREE.LoopOnce);
+					// action.clampWhenFinished = true;
+					// action.enable = true;
+					// action.play();
 
-					console.log('gltf.animations:', gltf.animations)
+					// console.log('gltf.animations:', gltf.animations)
 
 					scene.add( gltf.scene );
 					// roughnessMipmapper.dispose();
@@ -119,9 +102,9 @@
 					console.log('Hikemoji model loaded in', clock.getElapsedTime());
 
 				} );
+			}
 
-				const canvas = document.getElementById( 'canvas' );
-
+			function initRenderer() {
 				renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -129,6 +112,35 @@
 				renderer.toneMappingExposure = 1;
 				renderer.outputEncoding = THREE.sRGBEncoding;
 				container.appendChild( renderer.domElement );
+			}
+
+			function initCamera() {
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
+				camera.position.set( 0.1, 0.1, 1.88 );
+				camera.rotation.set( 0, -180, 0);
+				camera.fov = 47;
+			}
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+				scene.background = null;
+
+				const canvas = document.getElementById( 'canvas' );
+				initRenderer();
+				initCamera();
+				initLights();
+				initHikeMojiModel();
+
+				// var geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
+				// var material = new THREE.MeshPhongMaterial( { color: 0xe1e1e1 } );
+				// var floor = new THREE.Mesh( geometry, material );
+				// floor.rotateX( - Math.PI / 2);
+				// scene.add( floor );
+				
 
 				const pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
@@ -136,7 +148,7 @@
 				const controls = new OrbitControls( camera, renderer.domElement );
 				controls.minDistance = 2;
 				controls.maxDistance = 10;
-				controls.target.set( 0, 0, - 0.2);
+				controls.target.set( 0, 0, -0.2);
 				controls.update();
 
 				window.addEventListener( 'resize', onWindowResize );
@@ -144,7 +156,6 @@
 			}
 
 			function onWindowResize() {
-
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -155,10 +166,7 @@
 
 				const delta = clock.getDelta();
 				render(delta);
-				// log_info();
 				if(mixer) mixer.update(delta);
-				// camera.lookAt(hikemoji3d.scene.position);
-
 			}
 
 			function render(progress) {
