@@ -4,9 +4,8 @@
 		<title>three.js webgl - glTF loader</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
-
 		<script src="omggif.js"></script>
+		<script src="CCapture.all.min.js"></script>
 
 		<style>
 
@@ -41,10 +40,13 @@
 			import { GUI } from './dat.gui.module.js';
 
 
-			let camera, scene, renderer, hikemoji3d, mixer, container;
+			let camera, scene, renderer, hikemoji3d, mixer, container, capturer;
 			const clock = new THREE.Clock();
 
+
 			init();
+
+			capturer.start();
 			animate();
 
 			function initLights() {
@@ -76,11 +78,11 @@
 			}
 
 			function initHikeMojiModel() {
-				const loader = new GLTFLoader().setPath( 'models/gltf/Male_Anim_out/' );
-				loader.load( 'Male_Anim.gltf', function ( gltf ) {
+				const loader = new GLTFLoader().setPath( 'models/gltf/MaleLODA_Rig_V02_Flip_out/' );
+				loader.load( 'MaleLODA_Rig_V02_Flip.gltf', function ( gltf ) {
 
 					hikemoji3d = gltf;
-					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.715, 0);
+					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.705, 0);
 					hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
 					
 					var moji_scene = gltf.scene;
@@ -133,6 +135,25 @@
 				camera.fov = 47;
 			}
 
+			function initFloor() {
+				var geometry = new THREE.PlaneGeometry( 1000, 1000);
+				var material = new THREE.MeshPhongMaterial( { color: 0x111111 } );
+				var floor = new THREE.Mesh( geometry, material );
+				floor.position.y = -0.705;
+				floor.rotateX( - Math.PI / 2);
+				scene.add( floor );
+				console.log('floor position:', floor.position);
+			}
+
+			function initCapturer() {
+				capturer = new CCapture( { 
+					format: 'webm',
+					framerate: 60,
+					verbose: true,
+					timeLimit: 6
+				} );
+			}
+
 			function init() {
 
 				container = document.createElement( 'div' );
@@ -145,16 +166,9 @@
 				initRenderer();
 				initCamera();
 				initLights();
+				initCapturer();
 				initHikeMojiModel();
-
-				var geometry = new THREE.PlaneGeometry( 1000, 1000);
-				var material = new THREE.MeshPhongMaterial( { color: 0xe5e5e5 } );
-				var floor = new THREE.Mesh( geometry, material );
-				floor.position.y = -0.745;
-				floor.rotateX( - Math.PI / 2);
-				scene.add( floor );
-				console.log('floor position:', floor.position)
-				
+				initFloor();
 
 				const pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
@@ -188,6 +202,7 @@
 				// 	hikemoji3d.scene.rotation.y += progress;
 				// }
 				renderer.render( scene, camera );
+				capturer.capture( canvas );
 				// console.log("Ran in ", clock.getElapsedTime(), 'time')
 			}
 
