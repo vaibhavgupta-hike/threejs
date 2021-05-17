@@ -76,31 +76,41 @@
 			}
 
 			function initHikeMojiModel() {
-				const loader = new GLTFLoader().setPath( 'models/gltf/v4.MaleLODA_Tex_out/' );
-				loader.load( 'v4.MaleLODA_Tex.gltf', function ( gltf ) {
+				const loader = new GLTFLoader().setPath( 'models/gltf/Male_Anim_out/' );
+				loader.load( 'Male_Anim.gltf', function ( gltf ) {
 
 					hikemoji3d = gltf;
-					var moji_scene = gltf.scene;
-
-					mixer = new THREE.AnimationMixer(moji_scene);
 					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.715, 0);
 					hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
+					
+					var moji_scene = gltf.scene;
+					moji_scene.traverse((child) => {
+					  if (! child.isMesh) return;
+					  var prevMaterial = child.material;
+					  child.material = new THREE.MeshPhongMaterial();
+					  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
+					});
+					moji_scene.traverse(node => {
+						if(node.isMesh) {
+							console.log("traversing node ", node);
+							node.castShadow = false;
+							node.material.shininess=1000
+							node.material.metalness=1.5
+						}
+					});
 
-					// var action = mixer.clipAction( gltf.animations[0] );
-					// action.setLoop(THREE.LoopOnce);
-					// action.clampWhenFinished = true;
-					// action.enable = true;
-					// action.play();
+					mixer = new THREE.AnimationMixer(moji_scene);
 
-					// console.log('gltf.animations:', gltf.animations)
+					var action = mixer.clipAction( gltf.animations[0] );
+					action.setLoop(THREE.LoopOnce);
+					action.clampWhenFinished = true;
+					action.enable = true;
+					action.play();
 
-					scene.add( gltf.scene );
-					// roughnessMipmapper.dispose();
-
+					scene.add( moji_scene );
 					console.log('Hikemoji model loaded in', clock.getElapsedTime());
 					render(0);
 					console.log('Hikemoji model loaded in', clock.getElapsedTime());
-
 				} );
 			}
 
