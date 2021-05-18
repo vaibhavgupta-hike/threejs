@@ -9,9 +9,9 @@ var startTime = new Date().getTime();
 app.on('ready', function() {
 
     var win = new BrowserWindow({
-        width: 3840,
-        height: 2160,
-        webPreferences: { offscreen: true }
+        width: 1280,
+        height: 720,
+        webPreferences: { offscreen: false }
     });
     win.loadFile('webgl_loader_3dmoji.html');
     win.webContents.on('paint', (event, dirty, image) => {
@@ -19,8 +19,8 @@ app.on('ready', function() {
         var timeElapsed = new Date().getTime() - startTime;
         console.log('Paint called', numTimesPaintCalled, 'times in ', timeElapsed, 'miliseconds.');
 
-        fname = 'ex' + String(numTimesPaintCalled) + '.png'
-        fs.writeFileSync(fname, image.toPNG())
+        // fname = 'ex' + String(numTimesPaintCalled) + '.png'
+        // fs.writeFileSync(fname, image.toPNG())
     });
     win.webContents.setFrameRate(60);
 
