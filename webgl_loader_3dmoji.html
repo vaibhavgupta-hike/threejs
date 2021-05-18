@@ -78,6 +78,8 @@
 			}
 
 			function initHikeMojiModel() {
+
+				const roughnessMipmapper = new RoughnessMipmapper( renderer );
 				const loader = new GLTFLoader().setPath( 'models/gltf/Male_Anim_out/' );
 				loader.load( 'Male_Anim.gltf', function ( gltf ) {
 
@@ -89,17 +91,18 @@
 					moji_scene.traverse((child) => {
 					  if (! child.isMesh) return;
 					  var prevMaterial = child.material;
-					  child.material = new THREE.MeshPhongMaterial();
-					  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
+					  // child.material = new THREE.MeshPhongMaterial();
+					  // THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
+					   roughnessMipmapper.generateMipmaps( child.material );
 					});
-					moji_scene.traverse(node => {
-						if(node.isMesh) {
-							console.log("traversing node ", node);
-							node.castShadow = false;
-							node.material.shininess=1000
-							node.material.metalness=1.5
-						}
-					});
+					// moji_scene.traverse(node => {
+					// 	if(node.isMesh) {
+					// 		console.log("traversing node ", node);
+					// 		node.castShadow = false;
+					// 		node.material.shininess=1000
+					// 		node.material.metalness=1.5
+					// 	}
+					// });
 
 					mixer = new THREE.AnimationMixer(moji_scene);
 
@@ -115,6 +118,8 @@
 					console.log('Hikemoji model loaded in', clock.getElapsedTime());
 					render(0);
 					console.log('Hikemoji model loaded in', clock.getElapsedTime());
+
+					roughnessMipmapper.dispose();
 				} );
 			}
 
@@ -150,7 +155,7 @@
 					format: 'webm',
 					framerate: 60,
 					verbose: true,
-					timeLimit: 2,
+					timeLimit: 5,
 					quality: 100
 				} );
 			}
@@ -161,7 +166,19 @@
 				document.body.appendChild( container );
 
 				scene = new THREE.Scene();
-				scene.background = null;
+				new RGBELoader()
+					.setDataType( THREE.UnsignedByteType )
+					.setPath( 'textures/equirectangular/' )
+					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+						const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+
+						scene.background = envMap;
+						scene.environment = envMap;
+
+						texture.dispose();
+						pmremGenerator.dispose();
+				} );
 
 				const canvas = document.getElementById( 'canvas' );
 				initRenderer();
