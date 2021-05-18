@@ -48,46 +48,30 @@ import * as THREE from './three.module.js';
 			function initHikeMojiModel() {
 
 				const roughnessMipmapper = new RoughnessMipmapper( renderer );
-				const loader = new GLTFLoader().setPath( 'models/gltf/Male_Anim_out/' );
-				loader.load( 'Male_Anim.gltf', function ( gltf ) {
+				const loader = new FBXLoader();
+				loader.load( 'models/fbx/Female_Anim_Vaibhav3.fbx', function ( object ) {
 
-					hikemoji3d = gltf;
-					hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.705, 0);
-					hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
-					
-					var moji_scene = gltf.scene;
-					moji_scene.traverse((child) => {
-					  if (! child.isMesh) return;
-					  var prevMaterial = child.material;
-					  // child.material = new THREE.MeshPhongMaterial();
-					  // THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
-					   roughnessMipmapper.generateMipmaps( child.material );
-					});
-					// moji_scene.traverse(node => {
-					// 	if(node.isMesh) {
-					// 		console.log("traversing node ", node);
-					// 		node.castShadow = false;
-					// 		node.material.shininess=1000
-					// 		node.material.metalness=1.5
-					// 	}
-					// });
+					hikemoji3d = object;
+					hikemoji3d.position.set(0.14, -0.705, 0);
+					hikemoji3d.scale.set(0.0053, 0.0053, 0.0053);
+					mixer = new THREE.AnimationMixer( object );
 
-					mixer = new THREE.AnimationMixer(moji_scene);
-
-					var action = mixer.clipAction( gltf.animations[0] );
-					action.setLoop(THREE.LoopOnce);
-					action.clampWhenFinished = true;
-					action.enable = true;
+					const action = mixer.clipAction( object.animations[ 0 ] );
 					action.play();
 
-					console.log("gltf.animations: ", gltf.animations);
+					object.traverse( function ( child ) {
 
-					scene.add( moji_scene );
-					console.log('Hikemoji model loaded in', clock.getElapsedTime());
-					render(0);
-					console.log('Hikemoji model loaded in', clock.getElapsedTime());
+						if ( child.isMesh ) {
 
-					roughnessMipmapper.dispose();
+							child.castShadow = true;
+							child.receiveShadow = true;
+
+						}
+
+					} );
+
+					scene.add( object );
+
 				} );
 			}
 
