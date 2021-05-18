@@ -1,3 +1,5 @@
 .DS_Store
 models/gltf/.DS_Store
 node_modules/*
+ex*.png
+
