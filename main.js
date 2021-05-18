@@ -9,9 +9,9 @@ var startTime = new Date().getTime();
 app.on('ready', function() {
 
     var win = new BrowserWindow({
-        width: 1280,
-        height:720,
-        webPreferences: { offscreen: false }
+        width: 3840,
+        height: 2160,
+        webPreferences: { offscreen: true }
     });
     win.loadFile('webgl_loader_3dmoji.html');
     win.webContents.on('paint', (event, dirty, image) => {
