@@ -141,13 +141,14 @@
 			}
 
 			function initFloor() {
-				var geometry = new THREE.PlaneGeometry( 1000, 1000);
-				var material = new THREE.MeshPhongMaterial( { color: 0x111111 } );
-				var floor = new THREE.Mesh( geometry, material );
-				floor.position.y = -0.705;
-				floor.rotateX( - Math.PI / 2);
-				scene.add( floor );
-				console.log('floor position:', floor.position);
+				const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
+				mesh.rotation.x = - Math.PI / 2;
+				scene.add( mesh );
+
+				const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+				grid.material.opacity = 0.2;
+				grid.position.y = -0.705;
+				scene.add( grid );
 			}
 
 			function initCapturer() {
