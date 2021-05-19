@@ -23,17 +23,14 @@ import * as THREE from './three.module.js';
 
 				const filler_left = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 				filler_left.position.set( -0.3 + camera_global[0], -0.35 + camera_global[1], 1.04 + camera_global[2] );
-				filler_left.rotation.set(25.08, 154, 10.3);
 				scene.add( filler_left );
 
 				const filler_right = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 				filler_right.position.set( 0.78 + camera_global[0], -0.35 + camera_global[1], 1.04 + camera_global[2] );
-				filler_right.rotation.set(25.08, 154, 10.3);
 				scene.add( filler_right );
 
 				const filler_up = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 				filler_up.position.set( 0.232 + camera_global[0], 0.3 + camera_global[1], 1.18 + camera_global[2] );
-				filler_up.rotation.set(25.08, 154, 10.3);
 				scene.add( filler_up );
 
 				const key_center = new THREE.DirectionalLight( 0xffffff, 0.99 );
