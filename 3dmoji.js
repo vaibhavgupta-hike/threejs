@@ -18,28 +18,22 @@ import * as THREE from './three.module.js';
 			animate();
 
 			function initLights() {
-				var camera_global = (-0.09983361, 0.5368214, -0.9119075)
-				// camera_global = (0, 0, 0)
-
 				const filler_left = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
-				filler_left.position.set( -0.3 + camera_global[0], -0.35 + camera_global[1], 1.04 + camera_global[2] );
+				filler_left.position.set(-0.3, -0.35, 1.04);
 				scene.add( filler_left );
 
 				const filler_right = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
-				filler_right.position.set( 0.78 + camera_global[0], -0.35 + camera_global[1], 1.04 + camera_global[2] );
+				filler_right.position.set(0.78, -0.35, 1.04);
 				scene.add( filler_right );
 
 				const filler_up = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
-				filler_up.position.set( 0.232 + camera_global[0], 0.3 + camera_global[1], 1.18 + camera_global[2] );
+				filler_up.position.set( 0.232, 0.3, 1.18);
 				scene.add( filler_up );
 
 				const key_center = new THREE.DirectionalLight( 0xffffff, 0.99 );
-				key_center.position.set(0.194 + camera_global[0], -0.72 + camera_global[1], 3.251 + camera_global[2]);
+				key_center.position.set(0.194, -0.72, 3.251);
 				key_center.rotation.set(-0.04, -180, 39.5);
 				scene.add( key_center );
-
-				const light = new THREE.AmbientLight( 0xffffff ); // soft white light
-				// scene.add( light );
 			}
 
 			function initHikeMojiModel() {
@@ -56,9 +50,9 @@ import * as THREE from './three.module.js';
 					moji_scene.traverse((child) => {
 					  if (! child.isMesh) return;
 					  var prevMaterial = child.material;
-					  // child.material = new THREE.MeshPhongMaterial();
-					  // THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
-					   roughnessMipmapper.generateMipmaps( child.material );
+					  child.material = new THREE.MeshPhongMaterial();
+					  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
+					  roughnessMipmapper.generateMipmaps( child.material );
 					});
 					// moji_scene.traverse(node => {
 					// 	if(node.isMesh) {
