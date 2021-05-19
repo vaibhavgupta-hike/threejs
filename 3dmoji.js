@@ -7,13 +7,11 @@ import { RoughnessMipmapper } from './RoughnessMipmapper.js';
 import { GUI } from './dat.gui.module.js';
 
 
-let camera, scene, renderer, hikemoji3d, mixer, container, capturer;
+let camera, scene, renderer, hikemoji3d, mixer, container;
 const clock = new THREE.Clock();
 
 
 init();
-
-capturer.start();
 animate();
 
 function initLights() {
@@ -109,16 +107,6 @@ function initFloor() {
 	scene.add( grid );
 }
 
-function initCapturer() {
-	capturer = new CCapture( { 
-		format: 'webm',
-		framerate: 60,
-		verbose: true,
-		timeLimit: 5,
-		quality: 100
-	} );
-}
-
 function init() {
 
 	container = document.createElement( 'div' );
@@ -147,7 +135,6 @@ function init() {
 	initRenderer();
 	initCamera();
 	initLights();
-	initCapturer();
 	initHikeMojiModel();
 	initFloor();
 
@@ -180,6 +167,5 @@ function render(progress) {
 	// 	hikemoji3d.scene.rotation.y += progress;
 	// }
 	renderer.render( scene, camera );
-	capturer.capture( canvas );
 	// console.log("Ran in ", clock.getElapsedTime(), 'time')
 }
