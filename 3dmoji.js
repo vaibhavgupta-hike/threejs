@@ -1,5 +1,4 @@
 import * as THREE from './three.module.js';
-
 import { OrbitControls } from './OrbitControls.js';
 import { GLTFLoader } from './GLTFLoader.js';
 import { FBXLoader } from './FBXLoader.js'
@@ -125,6 +124,10 @@ function init() {
 	container = document.createElement( 'div' );
 	document.body.appendChild( container );
 
+	initRenderer();
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	pmremGenerator.compileEquirectangularShader();
+
 	scene = new THREE.Scene();
 	new RGBELoader()
 		.setDataType( THREE.UnsignedByteType )
@@ -147,9 +150,6 @@ function init() {
 	initCapturer();
 	initHikeMojiModel();
 	initFloor();
-
-	const pmremGenerator = new THREE.PMREMGenerator( renderer );
-	pmremGenerator.compileEquirectangularShader();
 
 	const controls = new OrbitControls( camera, renderer.domElement );
 	controls.minDistance = 2;
