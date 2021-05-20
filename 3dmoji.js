@@ -14,6 +14,62 @@ const clock = new THREE.Clock();
 init();
 animate();
 
+function generateGIF( element, renderFunction, duration = 1, fps = 30 ) {
+	const frames = Math.ceil(duration * fps);
+
+	const canvas = document.createElement( 'canvas' );
+	canvas.width = element.width;
+	canvas.height = element.height;
+
+	const context = canvas.getContext( '2d' );
+
+	console.log('canvas.width:', canvas.width)
+	console.log('canvas.height:', canvas.height)
+	console.log('frames:', frames)
+	const buffer = new Uint8Array( canvas.width * canvas.height * frames * 5 );
+	const pixels = new Uint8Array( canvas.width * canvas.height );
+	const writer = new GifWriter( buffer, canvas.width, canvas.height, { loop: 0 } );
+
+	let current = 0;
+	return new Promise( async function addFrame( resolve ) {
+		renderFunction( current * fps );
+		context.drawImage( element, 0, 0 );	// positioning image at (0, 0)
+		const data = context.getImageData( 0, 0, canvas.width, canvas.height ).data;
+		const palette = [];
+		for ( var j = 0, k = 0, jl = data.length; j < jl; j += 4, k ++ ) {
+
+			const r = Math.floor( data[ j + 0 ] * 0.05 ) * 20;
+			const g = Math.floor( data[ j + 1 ] * 0.05 ) * 20;
+			const b = Math.floor( data[ j + 2 ] * 0.05 ) * 20;
+			const color = r << 16 | g << 8 | b << 0;
+			
+			const index = palette.indexOf( color );
+			if ( index === -1 ) {
+				pixels[ k ] = palette.length;
+				palette.push( color );
+			} else {
+				pixels[ k ] = index;
+			}
+		}
+		// Force palette to be power of 2
+		let powof2 = 1;
+		while ( powof2 < palette.length ) powof2 <<= 1;
+		// powof2 = 256
+		palette.length = powof2;
+
+		const delay = 100 / fps; // Delay in hundredths of a sec (100 = 1s)
+		const options = { palette: new Uint32Array( palette ), delay: delay };
+		writer.addFrame( 0, 0, canvas.width, canvas.height, pixels, options );
+
+		current ++;
+		if ( current < frames ) {
+			await setTimeout( addFrame, 0, resolve );
+		} else {
+			resolve( buffer.subarray( 0, writer.end() ) );
+		}
+	} );
+}
+
 function initLights() {
 	const filler_left = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
 	filler_left.position.set(-0.3, -0.35, 1.04);
@@ -76,7 +132,20 @@ function initHikeMojiModel() {
 		console.log('Hikemoji model loaded in', clock.getElapsedTime());
 
 		roughnessMipmapper.dispose();
+		downloadGif()
 	} );
+}
+
+async function downloadGif() {
+	const buffer = await generateGIF(canvas, render, hikemoji3d.animations[0].duration, 10)
+	console.log('Total time taken =', clock.getElapsedTime(), 'seconds')
+
+	const blob = new Blob( [ buffer ], { type: 'image/gif' } );
+
+	const link = document.createElement( 'a' );
+	link.href = URL.createObjectURL( blob );
+	link.download = 'animation.gif';
+	link.dispatchEvent( new MouseEvent( 'click' ) );
 }
 
 function initRenderer() {
@@ -166,6 +235,7 @@ function render(progress) {
 	// if(hikemoji3d) {
 	// 	hikemoji3d.scene.rotation.y += progress;
 	// }
-	renderer.render( scene, camera );
+	if(mixer) mixer.setTime(progress / 1000.0)
+	renderer.render( scene, camera )
 	// console.log("Ran in ", clock.getElapsedTime(), 'time')
 }
