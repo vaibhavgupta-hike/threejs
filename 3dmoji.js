@@ -39,47 +39,81 @@ function initLights() {
 function initHikeMojiModel() {
 
 	const roughnessMipmapper = new RoughnessMipmapper( renderer );
-	const loader = new GLTFLoader().setPath( 'models/gltf/Male_Anim_out/' );
-	loader.load( 'Male_Anim.gltf', function ( gltf ) {
+	
+	const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
+	loader.load( 'Female_Anim_WithoutEmbed.fbx', function ( object ) {
+		hikemoji3d = object
+		hikemoji3d.position.set(0.14, -0.705, 0)
+		hikemoji3d.scale.set(0.0053, 0.0053, 0.0053)
 
-		hikemoji3d = gltf;
-		hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.705, 0);
-		hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
-		
-		var moji_scene = gltf.scene;
-		moji_scene.traverse((child) => {
-		  if (! child.isMesh) return;
-		  var prevMaterial = child.material;
-		  child.material = new THREE.MeshPhongMaterial();
-		  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
-		  roughnessMipmapper.generateMipmaps( child.material );
-		});
-		// moji_scene.traverse(node => {
-		// 	if(node.isMesh) {
-		// 		console.log("traversing node ", node);
-		// 		node.castShadow = false;
-		// 		node.material.shininess=1000
-		// 		node.material.metalness=1.5
-		// 	}
-		// });
+		console.log('fbx:', object)
+		// Turn the controllers off
+		hikemoji3d.children[0].children[0].visible = false
 
-		mixer = new THREE.AnimationMixer(moji_scene);
+		var female_lod = hikemoji3d.children[0].children[0].children[0]
+		console.log('female_lod:', female_lod)
 
-		var action = mixer.clipAction( gltf.animations[0] );
-		action.setLoop(THREE.LoopOnce);
-		action.clampWhenFinished = true;
-		action.enable = true;
+		var basebody_geo = female_lod.children[0].children[0]
+		console.log('basebody_geo:', basebody_geo)
+
+		const body_tex_loader = new THREE.TextureLoader();
+		body_tex_loader.load('')
+
+		mixer = new THREE.AnimationMixer( object );
+		const action = mixer.clipAction( object.animations[ 0 ] );
 		action.play();
-
-		console.log("gltf.animations: ", gltf.animations);
-
-		scene.add( moji_scene );
-		console.log('Hikemoji model loaded in', clock.getElapsedTime());
-		render(0);
-		console.log('Hikemoji model loaded in', clock.getElapsedTime());
-
-		roughnessMipmapper.dispose();
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		} );
+		scene.add( object );
+		console.log('Hikemoji loaded in', clock.getElapsedTime(), 'seconds')
 	} );
+
+	// const loader = new GLTFLoader().setPath( 'models/gltf/MaleLODA_Rig_V02_Flip_out/' );
+	// loader.load( 'MaleLODA_Rig_V02_Flip.gltf', function ( gltf ) {
+
+	// 	hikemoji3d = gltf;
+	// 	hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.705, 0);
+	// 	hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
+		
+	// 	var moji_scene = gltf.scene;
+	// 	moji_scene.traverse((child) => {
+	// 	  if (! child.isMesh) return;
+	// 	  var prevMaterial = child.material;
+	// 	  child.material = new THREE.MeshPhongMaterial();
+	// 	  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
+	// 	  roughnessMipmapper.generateMipmaps( child.material );
+	// 	});
+	// 	// moji_scene.traverse(node => {
+	// 	// 	if(node.isMesh) {
+	// 	// 		console.log("traversing node ", node);
+	// 	// 		node.castShadow = false;
+	// 	// 		node.material.shininess=1000
+	// 	// 		node.material.metalness=1.5
+	// 	// 	}
+	// 	// });
+
+	// 	mixer = new THREE.AnimationMixer(moji_scene);
+
+	// 	var action = mixer.clipAction( gltf.animations[0] );
+	// 	action.setLoop(THREE.LoopOnce);
+	// 	action.clampWhenFinished = true;
+	// 	action.enable = true;
+	// 	action.play();
+
+	// 	console.log("gltf.animations: ", gltf.animations);
+
+	// 	scene.add( moji_scene );
+	// 	console.log('Hikemoji model loaded in', clock.getElapsedTime());
+	// 	render(0);
+	// 	console.log('Hikemoji model loaded in', clock.getElapsedTime());
+
+	// 	roughnessMipmapper.dispose();
+	// 	downloadGif()
+	// } );
 }
 
 function initRenderer() {
