@@ -4,7 +4,6 @@ import { OrbitControls } from './OrbitControls.js';
 import { GLTFLoader } from './GLTFLoader.js';
 import { FBXLoader } from './FBXLoader.js'
 import { RGBELoader } from './RGBELoader.js';
-import { RoughnessMipmapper } from './RoughnessMipmapper.js';
 import { GUI } from './dat.gui.module.js';
 
 
@@ -35,9 +34,6 @@ function initLights() {
 }
 
 function initHikeMojiModel() {
-
-	const roughnessMipmapper = new RoughnessMipmapper( renderer );
-	
 	const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
 	loader.load( 'Female_Anim_WithoutEmbed.fbx', function ( object ) {
 		hikemoji3d = object
@@ -77,7 +73,6 @@ function initHikeMojiModel() {
 	// 	  var prevMaterial = child.material;
 	// 	  child.material = new THREE.MeshPhongMaterial();
 	// 	  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
-	// 	  roughnessMipmapper.generateMipmaps( child.material );
 	// 	});
 	// 	// moji_scene.traverse(node => {
 	// 	// 	if(node.isMesh) {
@@ -102,9 +97,6 @@ function initHikeMojiModel() {
 	// 	console.log('Hikemoji model loaded in', clock.getElapsedTime());
 	// 	render(0);
 	// 	console.log('Hikemoji model loaded in', clock.getElapsedTime());
-
-	// 	roughnessMipmapper.dispose();
-	// 	downloadGif()
 	// } );
 }
 
