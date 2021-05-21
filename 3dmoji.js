@@ -147,7 +147,7 @@ function initFloor() {
 function initCapturer() {
 	capturer = new CCapture( { 
 		format: 'webm',
-		framerate: 60,
+		framerate: 30,
 		verbose: true,
 		timeLimit: 5,
 		quality: 100
@@ -215,5 +215,6 @@ function render(progress) {
 	// }
 	renderer.render( scene, camera );
 	capturer.capture( canvas );
+	console.log('Time:', clock.getElapsedTime())
 	// console.log("Ran in ", clock.getElapsedTime(), 'time')
 }
