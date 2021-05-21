@@ -18,6 +18,7 @@ app.on('ready', function() {
         }
     });
     win.loadFile('webgl_loader_3dmoji.html');
+    win.openDevTools()
     win.webContents.on('paint', (event, dirty, image) => {
         numTimesPaintCalled += 1;
         var timeElapsed = new Date().getTime() - startTime;
