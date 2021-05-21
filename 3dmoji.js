@@ -60,12 +60,6 @@ function initHikeMojiModel() {
 		mixer = new THREE.AnimationMixer( object );
 		const action = mixer.clipAction( object.animations[ 0 ] );
 		action.play();
-		object.traverse( function ( child ) {
-			if ( child.isMesh ) {
-				child.castShadow = true;
-				child.receiveShadow = true;
-			}
-		} );
 		scene.add( object );
 		console.log('Hikemoji loaded in', clock.getElapsedTime(), 'seconds')
 	} );
@@ -200,6 +194,21 @@ function render(progress) {
 	// if(hikemoji3d) {
 	// 	hikemoji3d.scene.rotation.y += progress;
 	// }
-	renderer.render( scene, camera );
+	renderer.render( scene, camera )
+	var image = new Image()
+	image.src = renderer.domElement.toDataURL()
+	// console.log('base64:', renderer.domElement.toDataURL())
+	var fname = 'images/ex' + String(progress) + '.png'
+    // fs.writeFile(fname, renderer.domElement.toDataURL(), 'base64')
+
+
+    let base64String = renderer.domElement.toDataURL()
+	// Remove header
+	let base64Image = base64String.split(';base64,').pop();
+
+
+    fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
+	    console.log('File created');
+	});
 	// console.log("Ran in ", clock.getElapsedTime(), 'time')
 }
