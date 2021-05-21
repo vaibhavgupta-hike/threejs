@@ -31,9 +31,9 @@ camera.position.set( 0.1, 0.1, 1.88 );
 camera.rotation.set( 0, -180, 0);
 camera.fov = 47;
 
+let hikemoji
 async function loadHikemoji() {
 	const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
-	let hikemoji
 	await loader.load( 'Female_Anim_WithoutEmbed.fbx', function ( object ) {
 		hikemoji = object
 		hikemoji.position.set(0.14, -0.705, 0)
@@ -49,59 +49,84 @@ async function loadHikemoji() {
 		const body_tex_loader = new THREE.TextureLoader();
 
 		scene.add(hikemoji)
-
-		renderer.render(scene, camera)
-		screenshot('parallel.png', renderer)
 	} );
-	return hikemoji
 }
-var hikemoji = loadHikemoji()
+loadHikemoji()
 
-const canvas = document.getElementById( 'canvas1' );
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
 
-const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1;
-renderer.outputEncoding = THREE.sRGBEncoding;
-container.appendChild( renderer.domElement );
+sleep(1000).then(() => {
 
-function screenshot(fname, renderer) {
+    const duration = hikemoji.animations[0].duration
+	const fps = 30
+	const numFrames = Math.floor(duration * fps)
+
+	const numWorkers = 4
+	const framesPerWorker = Math.ceil(numFrames / numWorkers)
+
+	const arrayOfFrameArrays = new Array()
+	for(var worker=0; worker<numWorkers; worker++) {
+		const frameArray = new Array()
+		for(var i=0; i<framesPerWorker; i++) {
+			var frame = worker * framesPerWorker + i
+			if(frame > numFrames) break
+			frameArray.push(frame)
+		}
+		arrayOfFrameArrays.push(frameArray)
+	}
+	console.log('arrayOfFrameArrays:', arrayOfFrameArrays)
+
+	const canvas = document.getElementById( 'canvas1' );
+
+	const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.toneMapping = THREE.ACESFilmicToneMapping;
+	renderer.toneMappingExposure = 1;
+	renderer.outputEncoding = THREE.sRGBEncoding;
+	container.appendChild( renderer.domElement );
+
+	function screenshot(fname, renderer) {
+		renderer.render(scene, camera)
+	    let base64String = renderer.domElement.toDataURL()
+		let base64Image = base64String.split(';base64,').pop();
+	    fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
+		    console.log('File created');
+		});
+	}
+
+	new RGBELoader()
+		.setDataType( THREE.UnsignedByteType )
+		.setPath( 'textures/equirectangular/' )
+		.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+			const pmremGenerator = new THREE.PMREMGenerator( renderer );
+			pmremGenerator.compileEquirectangularShader();
+			const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+
+			scene.background = envMap;
+			scene.environment = envMap;
+
+			texture.dispose();
+			pmremGenerator.dispose();
+	} );
+
 	renderer.render(scene, camera)
-    let base64String = renderer.domElement.toDataURL()
-	let base64Image = base64String.split(';base64,').pop();
-    fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
-	    console.log('File created');
-	});
-}
 
-new RGBELoader()
-	.setDataType( THREE.UnsignedByteType )
-	.setPath( 'textures/equirectangular/' )
-	.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+	const controls = new OrbitControls( camera, renderer.domElement );
+	controls.minDistance = 2;
+	controls.maxDistance = 10;
+	controls.target.set( 0, 0, -0.2);
+	controls.update();
 
-		const pmremGenerator = new THREE.PMREMGenerator( renderer );
-		pmremGenerator.compileEquirectangularShader();
-		const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
-
-		scene.background = envMap;
-		scene.environment = envMap;
-
-		texture.dispose();
-		pmremGenerator.dispose();
-} );
-
-renderer.render(scene, camera)
-
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.minDistance = 2;
-controls.maxDistance = 10;
-controls.target.set( 0, 0, -0.2);
-controls.update();
-
-function renderHikemoji() {
+	function renderHikemoji() {
+		requestAnimationFrame(renderHikemoji)
+		renderer.render(scene, camera)
+	}
 	requestAnimationFrame(renderHikemoji)
-	renderer.render(scene, camera)
-}
-requestAnimationFrame(renderHikemoji)
+
+});
+
+	
