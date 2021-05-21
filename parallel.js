@@ -140,24 +140,11 @@ async function renderHikemoji() {
 
 				texture.dispose();
 				pmremGenerator.dispose();
-				console.log('background texture loaded')
-			}).catch((error) => console.log('The following error on loading texture occured', error))
+				console.log('background texture loaded in time', clock.getElapsedTime())
 
-			function sleep(timeout) {
-				return new Promise((resolve, reject) => {
-					setTimeout(() => {
-						resolve()
-					}, timeout)
-				})
-			}
-			sleep(500).then(() => {
 				const mixer = new THREE.AnimationMixer(hikemoji)
 				const action = mixer.clipAction(hikemoji.animations[0])
 				action.play()
-
-				frames.forEach((frame) => {
-					
-				})
 
 				const allFiles = frames.map((frame) => {
 					const timeFrame = frame * (1.0 / fps)
@@ -166,15 +153,16 @@ async function renderHikemoji() {
 					return screenshot(fname, renderer)
 				})
 				Promise.all(allFiles).then(() => console.log('Batch screenshots generated in time', clock.getElapsedTime()))
-			})
 
-			const controls = new OrbitControls( camera, renderer.domElement )
-			controls.minDistance = 2
-			controls.maxDistance = 10
-			controls.target.set( 0, 0, -0.2)
-			controls.update()
+				const controls = new OrbitControls( camera, renderer.domElement )
+				controls.minDistance = 2
+				controls.maxDistance = 10
+				controls.target.set( 0, 0, -0.2)
+				controls.update()
 
-			resolve()
+				resolve()
+
+			}).catch((error) => console.log('The following error on loading texture occured', error))
 		})
 	}
 
