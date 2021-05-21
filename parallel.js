@@ -4,6 +4,10 @@ import { FBXLoader } from './FBXLoader.js'
 import { OrbitControls } from './OrbitControls.js'
 
 
+
+
+const clock = new THREE.Clock()
+clock.start()
 const scene = new THREE.Scene()
 
 const container = document.createElement( 'div' );
@@ -31,36 +35,49 @@ camera.position.set( 0.1, 0.1, 1.88 );
 camera.rotation.set( 0, -180, 0);
 camera.fov = 47;
 
+function loadFile(path, loader) {
+	return new Promise((resolve, reject) => {
+
+		loader.load( path, function ( object ) {
+			resolve(object)
+		},
+		undefined,
+		(error) => {
+			reject(error)
+		} );
+
+	})
+}
+
 let hikemoji
-async function loadHikemoji() {
-	const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
-	await loader.load( 'Female_Anim_WithoutEmbed.fbx', function ( object ) {
-		hikemoji = object
+function loadHikemoji() {
+	return new Promise(async (resolve, reject) => {
+		const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
+		hikemoji = await loadFile('Female_Anim_WithoutEmbed.fbx', loader)
+
 		hikemoji.position.set(0.14, -0.705, 0)
 		hikemoji.scale.set(0.0053, 0.0053, 0.0053)
 
-		console.log('fbx:', object)
+		console.log('hikemoji:', hikemoji)
 		// Turn the controllers off
 		hikemoji.children[0].children[0].visible = false
 
 		// Incomplete. But these objects need to be used to load textures manually
 		var female_lod = hikemoji.children[0].children[0].children[0]
 		var basebody_geo = female_lod.children[0].children[0]
+
 		const body_tex_loader = new THREE.TextureLoader();
 
 		scene.add(hikemoji)
 		console.log('Hikemoji loaded')
-	} );
-}
-loadHikemoji()
-
-function sleep (time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
+		resolve()
+	})
 }
 
-sleep(1000).then(() => {
+async function renderHikemoji() {
+	await loadHikemoji()
 
-    const duration = hikemoji.animations[0].duration
+	const duration = hikemoji.animations[0].duration
 	const fps = 30
 	const numFrames = Math.floor(duration * fps)
 
@@ -84,72 +101,92 @@ sleep(1000).then(() => {
 	const canvas3 = document.getElementById( 'canvas3' );
 	const canvas4 = document.getElementById( 'canvas4' );
 
-	getScreenshots(canvas1, arrayOfFrameArrays[0])
-	getScreenshots(canvas2, arrayOfFrameArrays[1])
-	getScreenshots(canvas4, arrayOfFrameArrays[3])
-	getScreenshots(canvas3, arrayOfFrameArrays[2])
+	const allPromises = [
+		canvas1, canvas2, canvas3, canvas4
+	].map((canvas, index) => getScreenshots(canvas, arrayOfFrameArrays[index]))
+	Promise.all(allPromises).then(() => console.log('All screenshots generated in time', clock.getElapsedTime()))
 
 	function getScreenshots(canvas, frames) {
-		const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
-		renderer.setPixelRatio( window.devicePixelRatio );
-		renderer.setSize( window.innerWidth, window.innerHeight );
-		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 1;
-		renderer.outputEncoding = THREE.sRGBEncoding;
-		container.appendChild( renderer.domElement );
+		return new Promise((resolve, reject) => {
 
-		function screenshot(fname, renderer) {
-		renderer.render(scene, camera)
-	    let base64String = renderer.domElement.toDataURL()
-		let base64Image = base64String.split(';base64,').pop();
-	    fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
-			    console.log('File created');
-			});
-		}
+			const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.toneMapping = THREE.ACESFilmicToneMapping;
+			renderer.toneMappingExposure = 1;
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			container.appendChild(renderer.domElement);
 
-		new RGBELoader()
-		.setDataType( THREE.UnsignedByteType )
-		.setPath( 'textures/equirectangular/' )
-		.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+			function screenshot(fname, renderer) {
+				return new Promise((resolve, reject) => {
+					renderer.render(scene, camera)
+				    let base64String = renderer.domElement.toDataURL()
+					let base64Image = base64String.split(';base64,').pop();
+				    fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
+					  	console.log('File created');
+					  	resolve()
+					});
+				})
+			}
 
-			const pmremGenerator = new THREE.PMREMGenerator( renderer );
-			pmremGenerator.compileEquirectangularShader();
-			const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
+			new RGBELoader()
+			.setDataType( THREE.UnsignedByteType )
+			.setPath( 'textures/equirectangular/' )
+			.load( 'royal_esplanade_1k.hdr', function ( texture ) {
 
-			scene.background = envMap;
-			scene.environment = envMap;
+				const pmremGenerator = new THREE.PMREMGenerator( renderer );
+				pmremGenerator.compileEquirectangularShader();
+				const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
 
-			texture.dispose();
-			pmremGenerator.dispose();
-			console.log('background texture loaded')
-		} );
+				scene.background = envMap;
+				scene.environment = envMap;
 
-		sleep(2000).then(() => {
-			const mixer = new THREE.AnimationMixer(hikemoji);
-			const action = mixer.clipAction(hikemoji.animations[0]);
-			action.play();
+				texture.dispose();
+				pmremGenerator.dispose();
+				console.log('background texture loaded')
+			} );
 
-			frames.forEach((frame) => {
-				const timeFrame = frame * (1.0 / fps)
-				mixer.setTime(timeFrame)
-				const fname = 'images/frame_' + String(frame) + '.png'
-				screenshot(fname, renderer)
+			function sleep(timeout) {
+				return new Promise((resolve, reject) => {
+					setTimeout(() => {
+						resolve()
+					}, timeout)
+				})
+			}
+			sleep(500).then(() => {
+				const mixer = new THREE.AnimationMixer(hikemoji)
+				const action = mixer.clipAction(hikemoji.animations[0])
+				action.play()
+
+				frames.forEach((frame) => {
+					
+				})
+
+				const allFiles = frames.map((frame) => {
+					const timeFrame = frame * (1.0 / fps)
+					mixer.setTime(timeFrame)
+					const fname = 'images/frame_' + String(frame) + '.png'
+					return screenshot(fname, renderer)
+				})
+				Promise.all(allFiles).then(() => console.log('Batch screenshots generated'))
 			})
+
+			const controls = new OrbitControls( camera, renderer.domElement )
+			controls.minDistance = 2
+			controls.maxDistance = 10
+			controls.target.set( 0, 0, -0.2)
+			controls.update()
+
+			resolve()
 		})
-
-		const controls = new OrbitControls( camera, renderer.domElement );
-		controls.minDistance = 2;
-		controls.maxDistance = 10;
-		controls.target.set( 0, 0, -0.2);
-		controls.update();
 	}
 
-	function renderHikemoji() {
-		requestAnimationFrame(renderHikemoji)
-		renderer.render(scene, camera)
-	}
+	// function renderHikemoji() {
+	// 	requestAnimationFrame(renderHikemoji)
+	// 	renderer.render(scene, camera)
+	// }
 	// requestAnimationFrame(renderHikemoji)
+}
 
-});
-
+renderHikemoji()
 	
