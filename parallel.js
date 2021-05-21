@@ -129,11 +129,8 @@ async function renderHikemoji() {
 				})
 			}
 
-			new RGBELoader()
-			.setDataType( THREE.UnsignedByteType )
-			.setPath( 'textures/equirectangular/' )
-			.load( 'royal_esplanade_1k.hdr', function ( texture ) {
-
+			var rgbeLoader = new RGBELoader().setDataType(THREE.UnsignedByteType).setPath('textures/equirectangular/')
+			loadFile('royal_esplanade_1k.hdr', rgbeLoader).then((texture) => {
 				const pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
 				const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
@@ -144,7 +141,7 @@ async function renderHikemoji() {
 				texture.dispose();
 				pmremGenerator.dispose();
 				console.log('background texture loaded')
-			} );
+			}).catch((error) => console.log('The following error on loading texture occured', error))
 
 			function sleep(timeout) {
 				return new Promise((resolve, reject) => {
@@ -168,7 +165,7 @@ async function renderHikemoji() {
 					const fname = 'images/frame_' + String(frame) + '.png'
 					return screenshot(fname, renderer)
 				})
-				Promise.all(allFiles).then(() => console.log('Batch screenshots generated'))
+				Promise.all(allFiles).then(() => console.log('Batch screenshots generated in time', clock.getElapsedTime()))
 			})
 
 			const controls = new OrbitControls( camera, renderer.domElement )
