@@ -31,9 +31,10 @@ key_center.rotation.set(-0.04, -180, 39.5);
 scene.add( key_center );
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
-camera.position.set( 0.1, 0.1, 1.88 );
-camera.rotation.set( 0, -180, 0);
+camera.position.set(0.1,  0.09999999999999995,1.8800000000000001)
+camera.rotation.set(-0.048039932847762506, 0.04798459447086554, 0.0023060623704482023)
 camera.fov = 47;
+
 
 function loadFile(path, loader) {
 	return new Promise((resolve, reject) => {
@@ -66,8 +67,14 @@ function loadHikemoji() {
 		var female_lod = hikemoji.children[0].children[0].children[0]
 		var basebody_geo = female_lod.children[0].children[0]
 
-		const body_tex_loader = new THREE.TextureLoader();
+		const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
+		const body_diffuse_tex = await loadFile('Female_1K_body_Diffuse.png', texLoader)
+		basebody_geo.map = body_diffuse_tex
 
+		const body_normal_tex = await loadFile('Female_1K_body_Normal.png', texLoader)
+		basebody_geo.normalMap = body_normal_tex
+
+		
 		scene.add(hikemoji)
 		console.log('Hikemoji loaded')
 		resolve()
@@ -119,6 +126,8 @@ async function renderHikemoji() {
 
 			function screenshot(fname, renderer) {
 				return new Promise((resolve, reject) => {
+					console.log('camera position', camera.position)
+					console.log('camera rotation', camera.rotation)
 					renderer.render(scene, camera)
 				    let base64String = renderer.domElement.toDataURL()
 					let base64Image = base64String.split(';base64,').pop();
