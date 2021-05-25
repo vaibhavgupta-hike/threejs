@@ -11,6 +11,7 @@ import { GUI } from './dat.gui.module.js';
 let camera, scene, renderer, hikemoji3d, mixer, container, capturer;
 const clock = new THREE.Clock();
 
+let numFrames = 0
 
 init();
 
@@ -216,5 +217,8 @@ function render(progress) {
 	renderer.render( scene, camera );
 	capturer.capture( canvas );
 	console.log('Time:', clock.getElapsedTime())
+
+	numFrames += 1
+	if(numFrames == 151) window.close()
 	// console.log("Ran in ", clock.getElapsedTime(), 'time')
 }

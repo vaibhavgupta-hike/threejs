@@ -11,7 +11,7 @@ app.on('ready', function() {
     var win = new BrowserWindow({
         width: 1280,
         height: 720,
-        webPreferences: { offscreen: false }
+        webPreferences: { offscreen: true }
     });
     win.loadFile('webgl_loader_3dmoji.html');
     win.webContents.on('paint', (event, dirty, image) => {
@@ -22,6 +22,10 @@ app.on('ready', function() {
         // fname = 'ex' + String(numTimesPaintCalled) + '.png'
         // fs.writeFileSync(fname, image.toPNG())
     });
+    app.on('window-all-closed', () => {
+      app.quit()
+    })
+
     win.webContents.setFrameRate(60);
 
 });
