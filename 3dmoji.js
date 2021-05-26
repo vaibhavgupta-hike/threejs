@@ -10,30 +10,25 @@ const clock = new THREE.Clock()
 clock.start()
 const scene = new THREE.Scene()
 
-const container = document.createElement( 'div' );
-document.body.appendChild(container);
+const container = document.createElement( 'div' )
+document.body.appendChild(container)
 
-const filler_left = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
-filler_left.position.set(-0.3, -0.35, 1.04);
-scene.add( filler_left );
+const pt_light1 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.00 )
+pt_light1.position.set(-0.855, 0.907, 0.88)
+scene.add(pt_light1)
 
-const filler_right = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
-filler_right.position.set(0.78, -0.35, 1.04);
-scene.add( filler_right );
+const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
+pt_light2.position.set(-0.094, 1.875, -0.195)
+scene.add(pt_light2)
 
-const filler_up = new THREE.PointLight( 0xE1EFFF, 0.1, 13.65 );
-filler_up.position.set( 0.232, 0.3, 1.18);
-scene.add( filler_up );
+const pt_light3 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
+pt_light3.position.set(-0.665, 0.537, -0.510)
+scene.add(pt_light3)
 
-const key_center = new THREE.DirectionalLight( 0xffffff, 0.99 );
-key_center.position.set(0.194, -0.72, 3.251);
-key_center.rotation.set(-0.04, -180, 39.5);
-scene.add( key_center );
-
-const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 20 );
-camera.position.set(0.1,  0.09999999999999995,1.8800000000000001)
-camera.rotation.set(-0.048039932847762506, 0.04798459447086554, 0.0023060623704482023)
-camera.fov = 47;
+const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
+camera.position.set(0.033, 1.2, 3.0)
+camera.rotation.set(-21.80, 0.58, 0.23)
+camera.fov = 50
 
 
 function loadFile(path, loader) {
@@ -53,26 +48,39 @@ function loadFile(path, loader) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
-		hikemoji = await loadFile('Female_Anim_WithoutEmbed.fbx', loader)
+		const loader = new FBXLoader().setPath('models/fbx/')
+		hikemoji = await loadFile('FemaleLODA_Rig_V010.fbx', loader)
 
-		hikemoji.position.set(0.14, -0.705, 0)
-		hikemoji.scale.set(0.0053, 0.0053, 0.0053)
+		hikemoji.position.set(0, 0, 0)
+		hikemoji.scale.set(0.005, 0.005, 0.005)
 
 		console.log('hikemoji:', hikemoji)
 		// Turn the controllers off
-		hikemoji.children[0].children[0].visible = false
+		// hikemoji.children[0].children[0].visible = false
+
+		hikemoji.traverse((child) => {
+				if (!child.isMesh) return
+				var prevMaterial = child.material
+				child.material = new THREE.MeshPhongMaterial()
+				// THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
+		});
 
 		// Incomplete. But these objects need to be used to load textures manually
-		var female_lod = hikemoji.children[0].children[0].children[0]
-		var basebody_geo = female_lod.children[0].children[0]
-
+		const female_lod = hikemoji.children[0]
 		const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
+
+		const basebody_geo = female_lod.children[0].children[0]
 		const body_diffuse_tex = await loadFile('Female_1K_body_Diffuse.png', texLoader)
-		basebody_geo.map = body_diffuse_tex
+		basebody_geo.material.map = body_diffuse_tex
 
 		const body_normal_tex = await loadFile('Female_1K_body_Normal.png', texLoader)
-		basebody_geo.normalMap = body_normal_tex
+		basebody_geo.material.normalMap = body_normal_tex
+
+		const body_roughness_tex = await loadFile('Female_1K_body_Roughness.png', texLoader)
+		basebody_geo.material.specularMap = body_roughness_tex
+
+
+		const tongue_geo = female_lod.children[1].children[0].children[0]
 
 
 		scene.add(hikemoji)
@@ -82,13 +90,6 @@ function loadHikemoji() {
 }
 
 await loadHikemoji()
-
-const duration = hikemoji.animations[0].duration
-const fps = 30
-const numFrames = Math.floor(duration * fps)
-
-const numWorkers = 4
-const framesPerWorker = Math.ceil(numFrames / numWorkers)
 
 const canvas = document.getElementById( 'canvas' );
 
@@ -134,13 +135,13 @@ controls.maxDistance = 10
 controls.target.set( 0, 0, -0.2)
 controls.update()
 
-const mixer = new THREE.AnimationMixer(hikemoji)
-const action = mixer.clipAction(hikemoji.animations[0])
-action.play()
+// const mixer = new THREE.AnimationMixer(hikemoji)
+// const action = mixer.clipAction(hikemoji.animations[0])
+// action.play()
 
 function animate() {
 	requestAnimationFrame(animate)
-	mixer.update(clock.getDelta())
+	// mixer.update(clock.getDelta())
 	renderer.render(scene, camera)
 }
 requestAnimationFrame(animate)
