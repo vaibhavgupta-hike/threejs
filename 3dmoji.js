@@ -8,14 +8,12 @@ import { RoughnessMipmapper } from './RoughnessMipmapper.js';
 import { GUI } from './dat.gui.module.js';
 
 
-let camera, scene, renderer, hikemoji3d, mixer, container, capturer;
+let camera, scene, renderer, hikemoji3d, mixer, container;
 const clock = new THREE.Clock();
 
 let numFrames = 0
 
 init();
-
-capturer.start();
 animate();
 
 function initLights() {
@@ -40,7 +38,7 @@ function initLights() {
 function initHikeMojiModel() {
 
 	const roughnessMipmapper = new RoughnessMipmapper( renderer );
-	
+
 	const loader = new FBXLoader().setPath('models/fbx/Female_Anim_Textures_4k/')
 	loader.load( 'Female_Anim_WithoutEmbed.fbx', function ( object ) {
 		hikemoji3d = object
@@ -79,7 +77,7 @@ function initHikeMojiModel() {
 	// 	hikemoji3d = gltf;
 	// 	hikemoji3d.scene.children[0].children[0].position.set(0.14, -0.705, 0);
 	// 	hikemoji3d.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
-		
+
 	// 	var moji_scene = gltf.scene;
 	// 	moji_scene.traverse((child) => {
 	// 	  if (! child.isMesh) return;
@@ -145,16 +143,6 @@ function initFloor() {
 	scene.add( grid );
 }
 
-function initCapturer() {
-	capturer = new CCapture( { 
-		format: 'webm',
-		framerate: 30,
-		verbose: true,
-		timeLimit: 5,
-		quality: 100
-	} );
-}
-
 function init() {
 
 	container = document.createElement( 'div' );
@@ -179,7 +167,6 @@ function init() {
 	initRenderer();
 	initCamera();
 	initLights();
-	initCapturer();
 	initHikeMojiModel();
 	initFloor();
 
@@ -215,7 +202,6 @@ function render(progress) {
 	// 	hikemoji3d.scene.rotation.y += progress;
 	// }
 	renderer.render( scene, camera );
-	capturer.capture( canvas );
 	console.log('Time:', clock.getElapsedTime())
 
 	numFrames += 1
