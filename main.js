@@ -11,7 +11,7 @@ app.on('ready', function() {
     var win = new BrowserWindow({
         width: 1280,
         height: 720,
-        webPreferences: { offscreen: true }
+        webPreferences: { offscreen: false }
     });
     win.loadFile('webgl_loader_3dmoji.html');
     win.webContents.on('paint', (event, dirty, image) => {

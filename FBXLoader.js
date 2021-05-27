@@ -727,7 +727,7 @@ var FBXLoader = ( function () {
 						morphTarget.rawTargets = this.parseMorphTargets( relationships, DeformerNodes );
 						morphTarget.id = nodeID;
 
-						if ( relationships.parents.length > 1 ) console.warn( 'THREE.FBXLoader: morph target attached to more than one geometry is not supported.' );
+						if ( relationships != undefined && relationships.parents.length > 1 ) console.warn( 'THREE.FBXLoader: morph target attached to more than one geometry is not supported.' );
 
 						morphTargets[ nodeID ] = morphTarget;
 
@@ -795,6 +795,7 @@ var FBXLoader = ( function () {
 
 			var rawMorphTargets = [];
 
+			if(relationships === undefined) return rawMorphTargets;
 			for ( var i = 0; i < relationships.children.length; i ++ ) {
 
 				var child = relationships.children[ i ];
@@ -2493,7 +2494,7 @@ var FBXLoader = ( function () {
 						var debugObj = curveNodesMap.get( animationCurveID );
 
 						try {
-							
+
 							curveNodesMap.get( animationCurveID ).curves[ 'x' ] = animationCurve;
 
 						} catch ( e ) {

@@ -1,6 +1,7 @@
 import * as THREE from './three.module.js'
 import { RGBELoader } from './RGBELoader.js'
 import { FBXLoader } from './FBXLoader.js'
+import { GLTFLoader } from './GLTFLoader.js'
 import { OrbitControls } from './OrbitControls.js'
 
 
@@ -48,43 +49,69 @@ function loadFile(path, loader) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new FBXLoader().setPath('models/fbx/')
-		hikemoji = await loadFile('FemaleLODA_Rig_V010.fbx', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/Male_Demo_gltf/')
+		hikemoji = await loadFile('Male_Demo.gltf', loader)
 
-		hikemoji.position.set(0, 0, 0)
-		hikemoji.scale.set(0.005, 0.005, 0.005)
+		// hikemoji.position.set(0, 0, 0)
+		// hikemoji.scale.set(0.005, 0.005, 0.005)
 
 		console.log('hikemoji:', hikemoji)
 		// Turn the controllers off
 		// hikemoji.children[0].children[0].visible = false
 
-		hikemoji.traverse((child) => {
-				if (!child.isMesh) return
-				var prevMaterial = child.material
-				child.material = new THREE.MeshPhongMaterial()
-				// THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
+		// hikemoji.traverse((child) => {
+		// 		if (!child.isMesh) return
+		// 		var prevMaterial = child.material
+		// 		child.material = new THREE.MeshPhongMaterial()
+		// 		// THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
+		// });
+		//
+		// // Incomplete. But these objects need to be used to load textures manually
+		// const female_lod = hikemoji.children[0]
+		// const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
+		//
+		// const basebody_geo = female_lod.children[0].children[0]
+		// const body_diffuse_tex = await loadFile('Female_1K_body_Diffuse.png', texLoader)
+		// basebody_geo.material.map = body_diffuse_tex
+		//
+		// const body_normal_tex = await loadFile('Female_1K_body_Normal.png', texLoader)
+		// basebody_geo.material.normalMap = body_normal_tex
+		//
+		// const body_roughness_tex = await loadFile('Female_1K_body_Roughness.png', texLoader)
+		// basebody_geo.material.specularMap = body_roughness_tex
+		//
+		//
+		// const tongue_geo = female_lod.children[1].children[0].children[0]
+
+		hikemoji.scene.children[0].children[0].position.set(0.14, -0.705, 0);
+		hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
+
+		hikemoji.scene.traverse((child) => {
+		  if (! child.isMesh) return;
+		  var prevMaterial = child.material;
+		  child.material = new THREE.MeshPhongMaterial();
+		  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
 		});
+		// moji_scene.traverse(node => {
+		// 	if(node.isMesh) {
+		// 		console.log("traversing node ", node);
+		// 		node.castShadow = false;
+		// 		node.material.shininess=1000
+		// 		node.material.metalness=1.5
+		// 	}
+		// });
+		//
+		// mixer = new THREE.AnimationMixer(moji_scene);
+		//
+		// var action = mixer.clipAction( gltf.animations[0] );
+		// action.setLoop(THREE.LoopOnce);
+		// action.clampWhenFinished = true;
+		// action.enable = true;
+		// action.play();
+		//
+		// console.log("gltf.animations: ", gltf.animations);
 
-		// Incomplete. But these objects need to be used to load textures manually
-		const female_lod = hikemoji.children[0]
-		const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
-
-		const basebody_geo = female_lod.children[0].children[0]
-		const body_diffuse_tex = await loadFile('Female_1K_body_Diffuse.png', texLoader)
-		basebody_geo.material.map = body_diffuse_tex
-
-		const body_normal_tex = await loadFile('Female_1K_body_Normal.png', texLoader)
-		basebody_geo.material.normalMap = body_normal_tex
-
-		const body_roughness_tex = await loadFile('Female_1K_body_Roughness.png', texLoader)
-		basebody_geo.material.specularMap = body_roughness_tex
-
-
-		const tongue_geo = female_lod.children[1].children[0].children[0]
-
-
-		scene.add(hikemoji)
-		console.log('Hikemoji loaded')
+		scene.add( hikemoji.scene );
 		resolve()
 	})
 }
