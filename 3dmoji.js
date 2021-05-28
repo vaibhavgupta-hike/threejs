@@ -27,7 +27,7 @@ pt_light3.position.set(-0.665, 0.537, -0.510)
 scene.add(pt_light3)
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
-camera.position.set(0.033, 1.2, 3.0)
+camera.position.set(10, 10, 10)
 camera.rotation.set(-21.80, 0.58, 0.23)
 camera.fov = 50
 
@@ -49,8 +49,8 @@ function loadFile(path, loader) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/Male_Demo_gltf/')
-		hikemoji = await loadFile('Male_Demo.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/Male_Try1_gltf/')
+		hikemoji = await loadFile('Male_Try1.gltf', loader)
 
 		// hikemoji.position.set(0, 0, 0)
 		// hikemoji.scale.set(0.005, 0.005, 0.005)
@@ -83,15 +83,15 @@ function loadHikemoji() {
 		//
 		// const tongue_geo = female_lod.children[1].children[0].children[0]
 
-		hikemoji.scene.children[0].children[0].position.set(0.14, -0.705, 0);
+		hikemoji.scene.children[0].children[0].position.set(0, 0, 0);
 		hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
 
-		hikemoji.scene.traverse((child) => {
-		  if (! child.isMesh) return;
-		  var prevMaterial = child.material;
-		  child.material = new THREE.MeshPhongMaterial();
-		  THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
-		});
+		// hikemoji.scene.traverse((child) => {
+		//   if (! child.isMesh) return;
+		//   var prevMaterial = child.material;
+		//   child.material = new THREE.MeshPhongMaterial();
+		//   THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
+		// });
 		// moji_scene.traverse(node => {
 		// 	if(node.isMesh) {
 		// 		console.log("traversing node ", node);
@@ -113,6 +113,8 @@ function loadHikemoji() {
 
 		scene.add( hikemoji.scene );
 		resolve()
+
+		camera.lookAt(hikemoji.scene.children[0].children[0].position)
 	})
 }
 
