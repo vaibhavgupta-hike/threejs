@@ -38,7 +38,9 @@ function loadFile(path, loader) {
 		loader.load( path, function ( object ) {
 			resolve(object)
 		},
-		undefined,
+		(progress) => {
+			console.log("progress:", progress)
+		} ,
 		(error) => {
 			reject(error)
 		} );
@@ -49,8 +51,8 @@ function loadFile(path, loader) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/Male_Try1_gltf/')
-		hikemoji = await loadFile('Male_Try1.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/MaleLODA_Rig_V09_out/')
+		hikemoji = await loadFile('MaleLODA_Rig_V09.gltf', loader)
 
 		// hikemoji.position.set(0, 0, 0)
 		// hikemoji.scale.set(0.005, 0.005, 0.005)
@@ -83,8 +85,8 @@ function loadHikemoji() {
 		//
 		// const tongue_geo = female_lod.children[1].children[0].children[0]
 
-		hikemoji.scene.children[0].children[0].position.set(0, 0, 0);
-		hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
+		// hikemoji.scene.children[0].children[0].position.set(0, 0, 0);
+		// hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
 
 		// hikemoji.scene.traverse((child) => {
 		//   if (! child.isMesh) return;
@@ -114,7 +116,7 @@ function loadHikemoji() {
 		scene.add( hikemoji.scene );
 		resolve()
 
-		camera.lookAt(hikemoji.scene.children[0].children[0].position)
+		// camera.lookAt(hikemoji.scene.children[0].children[0].position)
 	})
 }
 
