@@ -1,10 +1,10 @@
-const {app, BrowserWindow} = require('electron');
-const fs = require('fs');
+const {app, BrowserWindow} = require('electron')
+const fs = require('fs')
 
-// app.disableHardwareAcceleration();
+// app.disableHardwareAcceleration()
 
-var numTimesPaintCalled = 0;
-var startTime = new Date().getTime();
+var numTimesPaintCalled = 0
+var startTime = new Date().getTime()
 
 app.on('ready', function() {
 
@@ -12,20 +12,20 @@ app.on('ready', function() {
         width: 720,
         height: 1280,
         webPreferences: { offscreen: false }
-    });
-    win.loadFile('webgl_loader_3dmoji.html');
+    })
+    win.loadFile('webgl_loader_3dmoji.html')
     win.webContents.on('paint', (event, dirty, image) => {
-        numTimesPaintCalled += 1;
-        var timeElapsed = new Date().getTime() - startTime;
-        console.log('Paint called', numTimesPaintCalled, 'times in ', timeElapsed, 'miliseconds.');
+        numTimesPaintCalled += 1
+        var timeElapsed = new Date().getTime() - startTime
+        console.log('Paint called', numTimesPaintCalled, 'times in ', timeElapsed, 'miliseconds.')
 
         // fname = 'ex' + String(numTimesPaintCalled) + '.png'
         // fs.writeFileSync(fname, image.toPNG())
-    });
+    })
     app.on('window-all-closed', () => {
       app.quit()
     })
 
-    win.webContents.setFrameRate(60);
+    win.webContents.setFrameRate(60)
 
-});
+})
