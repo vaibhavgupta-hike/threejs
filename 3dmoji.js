@@ -26,7 +26,7 @@ const pt_light3 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
 pt_light3.position.set(-0.665, -0.467, -0.510)
 scene.add(pt_light3)
 
-const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
+const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 )
 camera.position.set(0.12103, 0.51828, 2.9341)
 camera.rotation.set(-0.16388, 0.03808, 0.00629)
 camera.fov = 50
@@ -43,7 +43,7 @@ function loadFile(path, loader) {
 		} ,
 		(error) => {
 			reject(error)
-		} );
+		} )
 
 	})
 }
@@ -78,12 +78,12 @@ function loadHikemoji() {
 				// child.material.alpha = 0.8
 				// // child.material.transparency = true
 				// child.material.side = THREE.DoubleSides
-				// child.material.depthWrite = false;
+				// child.material.depthWrite = false
 				// child.material.depthTest = false
 				configureMaterial(child)
 				
 				console.log(child.name, child)
-		});
+		})
 		
 		// Incomplete. But these objects need to be used to load textures manually
 		const female_lod = hikemoji.scene.children[0].children[0]
@@ -102,35 +102,35 @@ function loadHikemoji() {
 		//
 		// const tongue_geo = female_lod.children[1].children[0].children[0]
 
-		// hikemoji.scene.children[0].children[0].position.set(0, 0, 0);
-		// hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53);
+		// hikemoji.scene.children[0].children[0].position.set(0, 0, 0)
+		// hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53)
 
 		// hikemoji.scene.traverse((child) => {
-		//   if (! child.isMesh) return;
-		//   var prevMaterial = child.material;
-		//   child.material = new THREE.MeshPhongMaterial();
-		//   THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial );
-		// });
+		//   if (! child.isMesh) return
+		//   var prevMaterial = child.material
+		//   child.material = new THREE.MeshPhongMaterial()
+		//   THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial )
+		// })
 		// moji_scene.traverse(node => {
 		// 	if(node.isMesh) {
-		// 		console.log("traversing node ", node);
-		// 		node.castShadow = false;
+		// 		console.log("traversing node ", node)
+		// 		node.castShadow = false
 		// 		node.material.shininess=1000
 		// 		node.material.metalness=1.5
 		// 	}
-		// });
+		// })
 		//
-		// mixer = new THREE.AnimationMixer(moji_scene);
+		// mixer = new THREE.AnimationMixer(moji_scene)
 		//
-		// var action = mixer.clipAction( gltf.animations[0] );
-		// action.setLoop(THREE.LoopOnce);
-		// action.clampWhenFinished = true;
-		// action.enable = true;
-		// action.play();
+		// var action = mixer.clipAction( gltf.animations[0] )
+		// action.setLoop(THREE.LoopOnce)
+		// action.clampWhenFinished = true
+		// action.enable = true
+		// action.play()
 		//
-		// console.log("gltf.animations: ", gltf.animations);
+		// console.log("gltf.animations: ", gltf.animations)
 
-		scene.add( hikemoji.scene );
+		scene.add( hikemoji.scene )
 		resolve()
 
 		// camera.lookAt(hikemoji.scene.children[0].children[0].position)
@@ -141,22 +141,26 @@ await loadHikemoji()
 
 // Add floor
 const floorGeometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 )
-const floorMaterial = new THREE.MeshBasicMaterial( { color: 0x807c70 } )
+const floorMaterial = new THREE.MeshPhongMaterial( { 
+	color: 0x807c70,
+	reflectivity: 1.0,
+ } )
 const floor = new THREE.Mesh( floorGeometry, floorMaterial )
 floor.material.side = THREE.DoubleSide
 floor.rotation.x = 33
 floor.position.y = -1
 scene.add( floor )
 
-const canvas = document.getElementById( 'canvas' );
+const canvas = document.getElementById( 'canvas' )
 
-const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1;
-renderer.outputEncoding = THREE.sRGBEncoding;
-container.appendChild(renderer.domElement);
+const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } )
+renderer.setPixelRatio( window.devicePixelRatio )
+renderer.setSize( window.innerWidth, window.innerHeight )
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 1
+renderer.outputEncoding = THREE.sRGBEncoding
+renderer.shadowMapEnabled = true
+container.appendChild(renderer.domElement)
 
 function screenshot(fname, renderer) {
 	return new Promise((resolve, reject) => {
@@ -164,26 +168,26 @@ function screenshot(fname, renderer) {
 		console.log('camera rotation', camera.rotation)
 		renderer.render(scene, camera)
 		let base64String = renderer.domElement.toDataURL()
-		let base64Image = base64String.split(';base64,').pop();
+		let base64Image = base64String.split('base64,').pop()
 			fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
-				console.log('File created');
+				console.log('File created')
 				resolve()
-		});
+		})
 	})
 }
 
 var rgbeLoader = new RGBELoader().setDataType(THREE.UnsignedByteType).setPath('textures/equirectangular/')
 const bgTexture = await loadFile('royal_esplanade_1k.hdr', rgbeLoader)
 
-const pmremGenerator = new THREE.PMREMGenerator( renderer );
-pmremGenerator.compileEquirectangularShader();
-const envMap = pmremGenerator.fromEquirectangular( bgTexture ).texture;
+const pmremGenerator = new THREE.PMREMGenerator( renderer )
+pmremGenerator.compileEquirectangularShader()
+const envMap = pmremGenerator.fromEquirectangular( bgTexture ).texture
 
-scene.background = envMap;
-scene.environment = envMap;
+scene.background = envMap
+scene.environment = envMap
 
-bgTexture.dispose();
-pmremGenerator.dispose();
+bgTexture.dispose()
+pmremGenerator.dispose()
 console.log('background texture loaded in time', clock.getElapsedTime())
 
 const controls = new OrbitControls( camera, renderer.domElement )
