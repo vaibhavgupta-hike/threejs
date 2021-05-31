@@ -15,15 +15,15 @@ const container = document.createElement( 'div' )
 document.body.appendChild(container)
 
 const pt_light1 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.00 )
-pt_light1.position.set(-0.855, 0.907, 0.88)
+pt_light1.position.set(-0.855, -0.1, 0.88)
 scene.add(pt_light1)
 
 const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
-pt_light2.position.set(-0.094, 1.875, -0.195)
+pt_light2.position.set(-0.094, 0.875, -0.195)
 scene.add(pt_light2)
 
 const pt_light3 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
-pt_light3.position.set(-0.665, 0.537, -0.510)
+pt_light3.position.set(-0.665, -0.467, -0.510)
 scene.add(pt_light3)
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
