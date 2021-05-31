@@ -50,21 +50,22 @@ function loadFile(path, loader) {
 
 function configureMaterial(child) {
 
-	child.material.depthWrite = true
 	if(child.material.name.includes("Specs") || child.material.name.includes("Eyebrow")) {
 		child.alphaMode = THREE.OPAQUE
 		child.material.transparent = true
+		child.material.depthWrite = false
 	} else {
 		child.alphaMode = THREE.OPAQUE
 		child.material.transparent = false
+		child.material.depthWrite = true
 	}
 }
 
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/MaleLODA_Rig_V09_out/')
-		hikemoji = await loadFile('MaleLODA_Rig_V09.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/Female_Pose_New_out/')
+		hikemoji = await loadFile('Female_Pose_New.gltf', loader)
 
 		// hikemoji.position.set(0, 0, 0)
 		// hikemoji.scale.set(0.005, 0.005, 0.005)
