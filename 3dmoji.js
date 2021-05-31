@@ -27,8 +27,8 @@ pt_light3.position.set(-0.665, 0.537, -0.510)
 scene.add(pt_light3)
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
-camera.position.set(10, 10, 10)
-camera.rotation.set(-21.80, 0.58, 0.23)
+camera.position.set(0.12103, 0.51828, 2.9341)
+camera.rotation.set(-0.16388, 0.03808, 0.00629)
 camera.fov = 50
 
 
@@ -64,11 +64,10 @@ function configureMaterial(child) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/Female_Pose_New_out/')
-		hikemoji = await loadFile('Female_Pose_New.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/MaleLODA_Rig_V09_out/')
+		hikemoji = await loadFile('MaleLODA_Rig_V09.gltf', loader)
 
-		// hikemoji.position.set(0, 0, 0)
-		// hikemoji.scale.set(0.005, 0.005, 0.005)
+		hikemoji.scene.children[0].children[0].position.set(0, -1, 0)
 
 		console.log('hikemoji:', hikemoji)
 		// Turn the controllers off
@@ -195,5 +194,6 @@ function animate() {
 	requestAnimationFrame(animate)
 	// mixer.update(clock.getDelta())
 	renderer.render(scene, camera)
+	console.log('Camera Position, Rotation, FOV:', camera.position, camera.rotation, camera.fov)
 }
 requestAnimationFrame(animate)
