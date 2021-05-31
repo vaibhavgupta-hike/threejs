@@ -9,8 +9,8 @@ var startTime = new Date().getTime();
 app.on('ready', function() {
 
     var win = new BrowserWindow({
-        width: 1280,
-        height: 720,
+        width: 720,
+        height: 1280,
         webPreferences: { offscreen: false }
     });
     win.loadFile('webgl_loader_3dmoji.html');

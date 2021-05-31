@@ -27,8 +27,8 @@ pt_light3.position.set(-0.665, -0.467, -0.510)
 scene.add(pt_light3)
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 )
-camera.position.set(-0.043496, 0.14898, 2.9752)
-camera.rotation.set(-0.046886, -0.01368, 0)
+camera.position.set(-0.72887, 0.0177, 2.89399)
+camera.rotation.set(-0.001526, -0.23239, -0.00035)
 camera.fov = 50
 
 
