@@ -48,6 +48,18 @@ function loadFile(path, loader) {
 	})
 }
 
+function configureMaterial(child) {
+
+	child.material.depthWrite = true
+	if(child.material.name.includes("Specs") || child.material.name.includes("Eyebrow")) {
+		child.alphaMode = THREE.OPAQUE
+		child.material.transparent = true
+	} else {
+		child.alphaMode = THREE.OPAQUE
+		child.material.transparent = false
+	}
+}
+
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
@@ -61,24 +73,32 @@ function loadHikemoji() {
 		// Turn the controllers off
 		// hikemoji.children[0].children[0].visible = false
 
-		// hikemoji.traverse((child) => {
-		// 		if (!child.isMesh) return
-		// 		var prevMaterial = child.material
-		// 		child.material = new THREE.MeshPhongMaterial()
-		// 		// THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
-		// });
-		//
-		// // Incomplete. But these objects need to be used to load textures manually
-		// const female_lod = hikemoji.children[0]
-		// const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
-		//
+		hikemoji.scene.traverse((child) => {
+				if (!child.isMesh) return
+				var prevMaterial = child.material
+				// child.material = new THREE.MeshLambertMaterial()
+				// // THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
+				// child.material.alpha = 0.8
+				// // child.material.transparency = true
+				// child.material.side = THREE.DoubleSides
+				// child.material.depthWrite = false;
+				// child.material.depthTest = false
+				configureMaterial(child)
+				
+				console.log(child.name, child.alphaMode)
+		});
+		
+		// Incomplete. But these objects need to be used to load textures manually
+		const female_lod = hikemoji.scene.children[0].children[0]
+		const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
+		
 		// const basebody_geo = female_lod.children[0].children[0]
 		// const body_diffuse_tex = await loadFile('Female_1K_body_Diffuse.png', texLoader)
 		// basebody_geo.material.map = body_diffuse_tex
-		//
+		
 		// const body_normal_tex = await loadFile('Female_1K_body_Normal.png', texLoader)
 		// basebody_geo.material.normalMap = body_normal_tex
-		//
+		
 		// const body_roughness_tex = await loadFile('Female_1K_body_Roughness.png', texLoader)
 		// basebody_geo.material.specularMap = body_roughness_tex
 		//
