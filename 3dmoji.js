@@ -27,8 +27,8 @@ pt_light3.position.set(-0.665, -0.467, -0.510)
 scene.add(pt_light3)
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 )
-camera.position.set(0.12103, 0.51828, 2.9341)
-camera.rotation.set(-0.16388, 0.03808, 0.00629)
+camera.position.set(-0.043496, 0.14898, 2.9752)
+camera.rotation.set(-0.046886, -0.01368, 0)
 camera.fov = 50
 
 
@@ -73,13 +73,9 @@ function loadHikemoji() {
 		hikemoji.scene.traverse((child) => {
 				if (!child.isMesh) return
 				var prevMaterial = child.material
-				// child.material = new THREE.MeshLambertMaterial()
-				// // THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
-				// child.material.alpha = 0.8
-				// // child.material.transparency = true
-				// child.material.side = THREE.DoubleSides
-				// child.material.depthWrite = false
-				// child.material.depthTest = false
+				child.material = new THREE.MeshLambertMaterial()
+				THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
+				
 				configureMaterial(child)
 				
 				console.log(child.name, child)
@@ -159,7 +155,7 @@ renderer.setSize( window.innerWidth, window.innerHeight )
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 1
 renderer.outputEncoding = THREE.sRGBEncoding
-renderer.shadowMapEnabled = true
+
 container.appendChild(renderer.domElement)
 
 function screenshot(fname, renderer) {
@@ -183,8 +179,8 @@ const pmremGenerator = new THREE.PMREMGenerator( renderer )
 pmremGenerator.compileEquirectangularShader()
 const envMap = pmremGenerator.fromEquirectangular( bgTexture ).texture
 
-scene.background = envMap
-scene.environment = envMap
+// scene.background = envMap
+// scene.environment = envMap
 
 bgTexture.dispose()
 pmremGenerator.dispose()
@@ -204,5 +200,6 @@ function animate() {
 	requestAnimationFrame(animate)
 	// mixer.update(clock.getDelta())
 	renderer.render(scene, camera)
+	console.log('Camera:', camera.position, camera.rotation)
 }
 requestAnimationFrame(animate)
