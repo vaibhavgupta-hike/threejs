@@ -50,12 +50,9 @@ function loadFile(path, loader) {
 
 function configureMaterial(child) {
 
-	if(child.material.name.includes("Specs") || child.material.name.includes("Eyebrow")) {
-		child.alphaMode = THREE.OPAQUE
-		child.material.transparent = true
-		child.material.depthWrite = false
-	} else {
-		child.alphaMode = THREE.OPAQUE
+	child.material.opacity = 1.0
+	if(!child.material.name.includes("specs") && !child.material.name.includes("eyebrow")) {
+		child.material.alphaMode = THREE.OPAQUE
 		child.material.transparent = false
 		child.material.depthWrite = true
 	}
@@ -64,8 +61,8 @@ function configureMaterial(child) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/MaleLODA_Rig_V09_out/')
-		hikemoji = await loadFile('MaleLODA_Rig_V09.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/Male_Pose2_out/')
+		hikemoji = await loadFile('Male_Pose2.gltf', loader)
 
 		hikemoji.scene.children[0].children[0].position.set(0, -1, 0)
 
@@ -85,7 +82,7 @@ function loadHikemoji() {
 				// child.material.depthTest = false
 				configureMaterial(child)
 				
-				console.log(child.name, child.alphaMode)
+				console.log(child.name, child)
 		});
 		
 		// Incomplete. But these objects need to be used to load textures manually
@@ -194,6 +191,5 @@ function animate() {
 	requestAnimationFrame(animate)
 	// mixer.update(clock.getDelta())
 	renderer.render(scene, camera)
-	console.log('Camera Position, Rotation, FOV:', camera.position, camera.rotation, camera.fov)
 }
 requestAnimationFrame(animate)
