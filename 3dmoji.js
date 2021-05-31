@@ -139,6 +139,15 @@ function loadHikemoji() {
 
 await loadHikemoji()
 
+// Add floor
+const floorGeometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 )
+const floorMaterial = new THREE.MeshBasicMaterial( { color: 0x807c70 } )
+const floor = new THREE.Mesh( floorGeometry, floorMaterial )
+floor.material.side = THREE.DoubleSide
+floor.rotation.x = 33
+floor.position.y = -1
+scene.add( floor )
+
 const canvas = document.getElementById( 'canvas' );
 
 const renderer = new THREE.WebGLRenderer( { canvas: canvas, alpha: true } );
