@@ -3,7 +3,7 @@ import { RGBELoader } from './RGBELoader.js'
 import { FBXLoader } from './FBXLoader.js'
 import { GLTFLoader } from './GLTFLoader.js'
 import { OrbitControls } from './OrbitControls.js'
-
+import { GUI } from './dat.gui.module.js'
 
 
 
@@ -143,14 +143,23 @@ controls.maxDistance = 10
 controls.target.set( 0, 0, -0.2)
 controls.update()
 
-let numFrames = 0
+let numScreenshots = 0
+var guiOptions = {
+	capture: function() {
+		numScreenshots += 1
+		const fname = 'hikemoji_' + numScreenshots.toString() + '.png'
+		renderer.render(scene, camera)
+		captureScreenshot(renderer, fname)
+	}
+}
+
+var gui = new GUI()
+gui.add(guiOptions, 'capture')
+
 
 function animate() {
 	requestAnimationFrame(animate)
 	renderer.render(scene, camera)
-	numFrames += 1
-
-	if(numFrames == 20) captureScreenshot(renderer, 'hikemoji.png')
 }
 requestAnimationFrame(animate)
 
