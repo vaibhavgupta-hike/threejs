@@ -1,10 +1,9 @@
-import * as THREE from './three.module.js'
-import { RGBELoader } from './RGBELoader.js'
-import { FBXLoader } from './FBXLoader.js'
-import { GLTFLoader } from './GLTFLoader.js'
-import { OrbitControls } from './OrbitControls.js'
-import { GUI } from './dat.gui.module.js'
-
+import * as THREE from 'https://threejs.org/build/three.module.js'
+import { OrbitControls } from 'https://threejs.org/examples/jsm/controls/OrbitControls.js'
+import { DragControls } from 'https://threejs.org/examples/jsm/controls/DragControls.js'
+import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js'
+import { RGBELoader } from 'https://threejs.org/examples/jsm/loaders/RGBELoader.js'
+import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js'
 
 
 const clock = new THREE.Clock()
