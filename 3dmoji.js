@@ -242,6 +242,17 @@ gui.add(guiOptions, 'background')
 gui.add(guiOptions, 'light_controls')
 gui.add(guiOptions, 'orbit_controls')
 
+const PI = 3.14
+const light1Folder = gui.addFolder('Light1')
+light1Folder.add(pt_light1, 'intensity', 0 , 5, 0.01)
+light1Folder.addColor({color: pt_light1.color}, 'color').onChange( function(colorValue){
+	// colorValue=colorValue.replace('#', '0x');
+	console.log('colorValue:', colorValue)
+	pt_light1.color.r = colorValue.r
+	pt_light1.color.g = colorValue.g
+	pt_light1.color.b = colorValue.b
+} )
+
 function animate() {
 	requestAnimationFrame(animate)
 	renderer.render(scene, camera)
