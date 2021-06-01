@@ -1,7 +1,4 @@
 const {app, BrowserWindow} = require('electron')
-const fs = require('fs')
-
-// app.disableHardwareAcceleration()
 
 var numTimesPaintCalled = 0
 var startTime = new Date().getTime()
@@ -13,7 +10,7 @@ app.on('ready', function() {
         height: 1280,
         webPreferences: { 
             offscreen: false,
-            noseIntegration: true,
+            nodeIntegration: true,
             contextIsolation: false
         }
     })

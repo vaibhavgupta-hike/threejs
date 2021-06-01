@@ -55,6 +55,8 @@ function configureMaterial(child) {
 		child.material.alphaMode = THREE.OPAQUE
 		child.material.transparent = false
 		child.material.depthWrite = true
+
+		child.material.metalness = Math.min(0.5, child.material.metalness)
 	}
 }
 
@@ -67,9 +69,6 @@ function loadHikemoji() {
 		hikemoji.scene.children[0].children[0].position.set(0, -1, 0)
 
 		console.log('hikemoji:', hikemoji)
-		// Turn the controllers off
-		// hikemoji.children[0].children[0].visible = false
-
 		hikemoji.scene.traverse((child) => {
 				if (!child.isMesh) return
 				var prevMaterial = child.material
@@ -77,59 +76,11 @@ function loadHikemoji() {
 				THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
 				
 				configureMaterial(child)
-				
 				console.log(child.name, child)
 		})
 		
-		// Incomplete. But these objects need to be used to load textures manually
-		const female_lod = hikemoji.scene.children[0].children[0]
-		const texLoader = new THREE.TextureLoader().setPath('textures/Female_2K_1K_0.5K/1K/')
-		
-		// const basebody_geo = female_lod.children[0].children[0]
-		// const body_diffuse_tex = await loadFile('Female_1K_body_Diffuse.png', texLoader)
-		// basebody_geo.material.map = body_diffuse_tex
-		
-		// const body_normal_tex = await loadFile('Female_1K_body_Normal.png', texLoader)
-		// basebody_geo.material.normalMap = body_normal_tex
-		
-		// const body_roughness_tex = await loadFile('Female_1K_body_Roughness.png', texLoader)
-		// basebody_geo.material.specularMap = body_roughness_tex
-		//
-		//
-		// const tongue_geo = female_lod.children[1].children[0].children[0]
-
-		// hikemoji.scene.children[0].children[0].position.set(0, 0, 0)
-		// hikemoji.scene.children[0].children[0].scale.set(0.53, 0.53, 0.53)
-
-		// hikemoji.scene.traverse((child) => {
-		//   if (! child.isMesh) return
-		//   var prevMaterial = child.material
-		//   child.material = new THREE.MeshPhongMaterial()
-		//   THREE.MeshStandardMaterial.prototype.copy.call( child.material, prevMaterial )
-		// })
-		// moji_scene.traverse(node => {
-		// 	if(node.isMesh) {
-		// 		console.log("traversing node ", node)
-		// 		node.castShadow = false
-		// 		node.material.shininess=1000
-		// 		node.material.metalness=1.5
-		// 	}
-		// })
-		//
-		// mixer = new THREE.AnimationMixer(moji_scene)
-		//
-		// var action = mixer.clipAction( gltf.animations[0] )
-		// action.setLoop(THREE.LoopOnce)
-		// action.clampWhenFinished = true
-		// action.enable = true
-		// action.play()
-		//
-		// console.log("gltf.animations: ", gltf.animations)
-
 		scene.add( hikemoji.scene )
 		resolve()
-
-		// camera.lookAt(hikemoji.scene.children[0].children[0].position)
 	})
 }
 
@@ -192,14 +143,21 @@ controls.maxDistance = 10
 controls.target.set( 0, 0, -0.2)
 controls.update()
 
-// const mixer = new THREE.AnimationMixer(hikemoji)
-// const action = mixer.clipAction(hikemoji.animations[0])
-// action.play()
+let numFrames = 0
 
 function animate() {
 	requestAnimationFrame(animate)
-	// mixer.update(clock.getDelta())
 	renderer.render(scene, camera)
-	console.log('Camera:', camera.position, camera.rotation)
+	numFrames += 1
+
+	if(numFrames == 20) captureScreenshot(renderer, 'hikemoji.png')
 }
 requestAnimationFrame(animate)
+
+function captureScreenshot(renderer, fname) {
+	const base64String = renderer.domElement.toDataURL()
+	const base64Image = base64String.split(';base64,').pop()
+    fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
+	  	console.log('File created')
+	})
+}
