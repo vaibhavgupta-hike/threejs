@@ -6,6 +6,18 @@ import { RGBELoader } from 'https://threejs.org/examples/jsm/loaders/RGBELoader.
 import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js'
 
 
+function getCubeLight(lightObject) {
+	const geometry = new THREE.BoxBufferGeometry(.1, .1, .1)
+	const material = new THREE.MeshBasicMaterial({
+		color: 0xFF0000
+	})
+	const cube = new THREE.Mesh(geometry, material)
+	cube.position.x = lightObject.position.x
+	cube.position.y = lightObject.position.y
+	cube.position.z = lightObject.position.z
+	return cube
+}
+
 const clock = new THREE.Clock()
 clock.start()
 const scene = new THREE.Scene()
@@ -17,6 +29,9 @@ const pt_light1 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.00 )
 pt_light1.position.set(-0.855, -0.1, 0.88)
 scene.add(pt_light1)
 
+const cubeHelper1 = getCubeLight(pt_light1)
+scene.add(cubeHelper1)
+
 const helper1 = new THREE.PointLightHelper( pt_light1, 1 )
 scene.add(helper1)
 
@@ -24,14 +39,23 @@ const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
 pt_light2.position.set(-0.094, 0.875, -0.195)
 scene.add(pt_light2)
 
+const cubeHelper2 = getCubeLight(pt_light2)
+scene.add(cubeHelper2)
+
 const pt_light3 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
 pt_light3.position.set(-0.665, -0.467, -0.510)
 scene.add(pt_light3)
+
+const cubeHelper3 = getCubeLight(pt_light3)
+scene.add(cubeHelper3)
 
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 )
 camera.position.set(-0.72887, 0.0177, 2.89399)
 camera.rotation.set(-0.001526, -0.23239, -0.00035)
 camera.fov = 50
+
+const mouse = new THREE.Vector2()
+const raycaster = new THREE.Raycaster();
 
 
 function loadFile(path, loader) {
@@ -76,11 +100,11 @@ function loadHikemoji() {
 				var prevMaterial = child.material
 				child.material = new THREE.MeshLambertMaterial()
 				THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
-				
+
 				configureMaterial(child)
 				console.log(child.name, child)
 		})
-		
+
 		scene.add( hikemoji.scene )
 		resolve()
 	})
@@ -90,7 +114,7 @@ await loadHikemoji()
 
 // Add floor
 const floorGeometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 )
-const floorMaterial = new THREE.MeshPhongMaterial( { 
+const floorMaterial = new THREE.MeshPhongMaterial( {
 	color: 0x807c70,
 	reflectivity: 1.0,
  } )
@@ -145,14 +169,17 @@ orbitControls.maxDistance = 10
 orbitControls.target.set( 0, 0, -0.2)
 orbitControls.update()
 
-const dragControls = new DragControls( [hikemoji], camera, renderer.domElement )
+const dragControls = new DragControls( [hikemoji.scene.children[0].children[0], pt_light1, cubeHelper1], camera, renderer.domElement )
 dragControls.addEventListener( 'dragstart', function ( event ) {
 	orbitControls.enabled = false
 } )
-
 dragControls.addEventListener( 'dragend', function ( event ) {
 	orbitControls.enabled = true
 } )
+dragControls.addEventListener( 'drag', function() {
+	renderer.render(scene, camera)
+} )
+
 
 let numScreenshots = 0
 var guiOptions = {
@@ -187,7 +214,6 @@ gui.add(guiOptions, 'capture')
 gui.add(guiOptions, 'background')
 gui.add(guiOptions, 'light_controls')
 gui.add(guiOptions, 'orbit_controls')
-
 
 function animate() {
 	requestAnimationFrame(animate)
