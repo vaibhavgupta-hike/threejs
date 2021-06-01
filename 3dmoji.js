@@ -17,6 +17,9 @@ const pt_light1 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.00 )
 pt_light1.position.set(-0.855, -0.1, 0.88)
 scene.add(pt_light1)
 
+const helper1 = new THREE.PointLightHelper( pt_light1, 1 )
+scene.add(helper1)
+
 const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
 pt_light2.position.set(-0.094, 0.875, -0.195)
 scene.add(pt_light2)
@@ -136,11 +139,20 @@ bgTexture.dispose()
 pmremGenerator.dispose()
 console.log('background texture loaded in time', clock.getElapsedTime())
 
-const controls = new OrbitControls( camera, renderer.domElement )
-controls.minDistance = 2
-controls.maxDistance = 10
-controls.target.set( 0, 0, -0.2)
-controls.update()
+const orbitControls = new OrbitControls( camera, renderer.domElement )
+orbitControls.minDistance = 2
+orbitControls.maxDistance = 10
+orbitControls.target.set( 0, 0, -0.2)
+orbitControls.update()
+
+const dragControls = new DragControls( [hikemoji], camera, renderer.domElement )
+dragControls.addEventListener( 'dragstart', function ( event ) {
+	orbitControls.enabled = false
+} )
+
+dragControls.addEventListener( 'dragend', function ( event ) {
+	orbitControls.enabled = true
+} )
 
 let numScreenshots = 0
 var guiOptions = {
@@ -158,12 +170,23 @@ var guiOptions = {
 			scene.background = null
 			scene.environment = null
 		}
+	},
+	light_controls: function() {
+		const isOn = helper1.visible
+		helper1.visible = !isOn
+	},
+	orbit_controls: function() {
+		const isOn = orbitControls.enabled
+		console.log('OrbitControls enabled:', isOn)
+		orbitControls.enabled = !isOn
 	}
 }
 
 var gui = new GUI()
 gui.add(guiOptions, 'capture')
 gui.add(guiOptions, 'background')
+gui.add(guiOptions, 'light_controls')
+gui.add(guiOptions, 'orbit_controls')
 
 
 function animate() {
