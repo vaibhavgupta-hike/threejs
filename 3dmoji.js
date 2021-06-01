@@ -130,8 +130,8 @@ const pmremGenerator = new THREE.PMREMGenerator( renderer )
 pmremGenerator.compileEquirectangularShader()
 const envMap = pmremGenerator.fromEquirectangular( bgTexture ).texture
 
-// scene.background = envMap
-// scene.environment = envMap
+scene.background = null
+scene.environment = null
 
 bgTexture.dispose()
 pmremGenerator.dispose()
@@ -150,11 +150,21 @@ var guiOptions = {
 		const fname = 'hikemoji_' + numScreenshots.toString() + '.png'
 		renderer.render(scene, camera)
 		captureScreenshot(renderer, fname)
+	},
+	background: function() {
+		if(scene.background === null) {
+			scene.background = envMap
+			scene.environment = envMap
+		} else {
+			scene.background = null
+			scene.environment = null
+		}
 	}
 }
 
 var gui = new GUI()
 gui.add(guiOptions, 'capture')
+gui.add(guiOptions, 'background')
 
 
 function animate() {
