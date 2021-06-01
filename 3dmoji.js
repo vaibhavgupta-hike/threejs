@@ -12,9 +12,7 @@ function getCubeLight(lightObject) {
 		color: 0xFF0000
 	})
 	const cube = new THREE.Mesh(geometry, material)
-	cube.position.x = lightObject.position.x
-	cube.position.y = lightObject.position.y
-	cube.position.z = lightObject.position.z
+	adjustPositionOf1wrt2(cube, lightObject)
 	return cube
 }
 
@@ -32,12 +30,15 @@ scene.add(pt_light1)
 const cubeHelper1 = getCubeLight(pt_light1)
 scene.add(cubeHelper1)
 
-const helper1 = new THREE.PointLightHelper( pt_light1, 1 )
+const helper1 = new THREE.PointLightHelper( pt_light1, 0.5, 0xFF0000 )
 scene.add(helper1)
 
 const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
 pt_light2.position.set(-0.094, 0.875, -0.195)
 scene.add(pt_light2)
+
+const helper2 = new THREE.PointLightHelper( pt_light2, 0.5, 0xFF0000 )
+scene.add(helper2)
 
 const cubeHelper2 = getCubeLight(pt_light2)
 scene.add(cubeHelper2)
@@ -45,6 +46,9 @@ scene.add(cubeHelper2)
 const pt_light3 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
 pt_light3.position.set(-0.665, -0.467, -0.510)
 scene.add(pt_light3)
+
+const helper3 = new THREE.PointLightHelper( pt_light3, 0.5, 0xFF0000 )
+scene.add(helper3)
 
 const cubeHelper3 = getCubeLight(pt_light3)
 scene.add(cubeHelper3)
@@ -169,9 +173,27 @@ orbitControls.maxDistance = 10
 orbitControls.target.set( 0, 0, -0.2)
 orbitControls.update()
 
-const dragControls = new DragControls( [hikemoji.scene.children[0].children[0], pt_light1, cubeHelper1], camera, renderer.domElement )
+const draggableObjects = [hikemoji.scene.children[0].children[0],
+													cubeHelper1,
+													cubeHelper2,
+													cubeHelper3]
+const dragControls = new DragControls( draggableObjects, camera, renderer.domElement )
 dragControls.addEventListener( 'dragstart', function ( event ) {
 	orbitControls.enabled = false
+} )
+dragControls.addEventListener( 'drag', function ( event ) {
+	if(event.object === cubeHelper1) {
+		adjustPositionOf1wrt2(pt_light1, cubeHelper1)
+		adjustPositionOf1wrt2(helper1, cubeHelper1)
+	}
+	if(event.object === cubeHelper2) {
+		adjustPositionOf1wrt2(pt_light2, cubeHelper2)
+		adjustPositionOf1wrt2(helper2, cubeHelper2)
+	}
+	if(event.object === cubeHelper3) {
+		adjustPositionOf1wrt2(pt_light3, cubeHelper3)
+		adjustPositionOf1wrt2(helper3, cubeHelper3)
+	}
 } )
 dragControls.addEventListener( 'dragend', function ( event ) {
 	orbitControls.enabled = true
@@ -201,6 +223,11 @@ var guiOptions = {
 	light_controls: function() {
 		const isOn = helper1.visible
 		helper1.visible = !isOn
+		helper2.visible = !isOn
+		helper3.visible = !isOn
+		cubeHelper1.visible = !isOn
+		cubeHelper2.visible = !isOn
+		cubeHelper3.visible = !isOn
 	},
 	orbit_controls: function() {
 		const isOn = orbitControls.enabled
@@ -227,4 +254,10 @@ function captureScreenshot(renderer, fname) {
     fs.writeFile(fname, base64Image, {encoding: 'base64'}, function(err) {
 	  	console.log('File created')
 	})
+}
+
+function adjustPositionOf1wrt2(obj1, obj2) {
+	obj1.position.x = obj2.position.x
+	obj1.position.y = obj2.position.y
+	obj1.position.z = obj2.position.z
 }
