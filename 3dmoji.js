@@ -53,6 +53,10 @@ scene.add(helper3)
 const cubeHelper3 = getCubeLight(pt_light3)
 scene.add(cubeHelper3)
 
+console.log('pt_light1:', pt_light1)
+console.log('pt_light2:', pt_light2)
+console.log('pt_light3:', pt_light3)
+
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 )
 camera.position.set(-0.72887, 0.0177, 2.89399)
 camera.rotation.set(-0.001526, -0.23239, -0.00035)
@@ -256,23 +260,23 @@ const PI = 3.14
 const light1Folder = gui.addFolder('Light1')
 light1Folder.add(pt_light1, 'intensity', 0 , 1, 0.01)
 light1Folder.addColor({color: pt_light1.color}, 'color').onChange( function(colorValue){
-	pt_light1.color.r = colorValue.r
-	pt_light1.color.g = colorValue.g
-	pt_light1.color.b = colorValue.b
+	pt_light1.color.r = colorValue.r / 255.0
+	pt_light1.color.g = colorValue.g / 255.0
+	pt_light1.color.b = colorValue.b / 255.0
 } )
 const light2Folder = gui.addFolder('Light2')
 light2Folder.add(pt_light2, 'intensity', 0 , 1, 0.01)
 light2Folder.addColor({color: pt_light2.color}, 'color').onChange( function(colorValue){
-	pt_light2.color.r = colorValue.r
-	pt_light2.color.g = colorValue.g
-	pt_light2.color.b = colorValue.b
+	pt_light2.color.r = colorValue.r / 255.0
+	pt_light2.color.g = colorValue.g / 255.0
+	pt_light2.color.b = colorValue.b / 255.0
 } )
 const light3Folder = gui.addFolder('Light3')
 light3Folder.add(pt_light3, 'intensity', 0 , 1, 0.01)
 light3Folder.addColor({color: pt_light3.color}, 'color').onChange( function(colorValue){
-	pt_light3.color.r = colorValue.r
-	pt_light3.color.g = colorValue.g
-	pt_light3.color.b = colorValue.b
+	pt_light3.color.r = colorValue.r / 255.0
+	pt_light3.color.g = colorValue.g / 255.0
+	pt_light3.color.b = colorValue.b / 255.0
 } )
 
 function animate() {
