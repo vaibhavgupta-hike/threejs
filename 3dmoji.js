@@ -103,7 +103,7 @@ function loadHikemoji() {
 		hikemoji.scene.traverse((child) => {
 				if (!child.isMesh) return
 				var prevMaterial = child.material
-				child.material = new THREE.MeshLambertMaterial()
+				child.material = new THREE.MeshStandardMaterial()
 				THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
 
 				configureMaterial(child)
@@ -258,26 +258,33 @@ gui.add(guiOptions, 'orbit_controls')
 
 const PI = 3.14
 const light1Folder = gui.addFolder('Light1')
-light1Folder.add(pt_light1, 'intensity', 0 , 1, 0.01)
+light1Folder.add(pt_light1, 'intensity', 0 , 5, 0.01)
 light1Folder.addColor({color: pt_light1.color}, 'color').onChange( function(colorValue){
 	pt_light1.color.r = colorValue.r / 255.0
 	pt_light1.color.g = colorValue.g / 255.0
 	pt_light1.color.b = colorValue.b / 255.0
 } )
 const light2Folder = gui.addFolder('Light2')
-light2Folder.add(pt_light2, 'intensity', 0 , 1, 0.01)
+light2Folder.add(pt_light2, 'intensity', 0 , 5, 0.01)
 light2Folder.addColor({color: pt_light2.color}, 'color').onChange( function(colorValue){
 	pt_light2.color.r = colorValue.r / 255.0
 	pt_light2.color.g = colorValue.g / 255.0
 	pt_light2.color.b = colorValue.b / 255.0
 } )
 const light3Folder = gui.addFolder('Light3')
-light3Folder.add(pt_light3, 'intensity', 0 , 1, 0.01)
+light3Folder.add(pt_light3, 'intensity', 0 , 5, 0.01)
 light3Folder.addColor({color: pt_light3.color}, 'color').onChange( function(colorValue){
 	pt_light3.color.r = colorValue.r / 255.0
 	pt_light3.color.g = colorValue.g / 255.0
 	pt_light3.color.b = colorValue.b / 255.0
 } )
+hikemoji.scene.traverse((child) => {
+	if(child.isMesh && child.material instanceof THREE.MeshStandardMaterial) {
+		const materialFolder = gui.addFolder(child.name)
+		materialFolder.add(child.material, 'metalness', 0, 1, 0.01)
+		materialFolder.add(child.material, 'roughness', 0, 1, 0.01)
+	}
+})
 
 function animate() {
 	requestAnimationFrame(animate)
