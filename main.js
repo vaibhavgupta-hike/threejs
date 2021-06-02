@@ -6,7 +6,7 @@ var startTime = new Date().getTime()
 app.on('ready', function() {
 
     var win = new BrowserWindow({
-        width: 720,
+        width: 1600,
         height: 1280,
         webPreferences: { 
             offscreen: false,

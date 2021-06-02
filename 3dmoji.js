@@ -101,13 +101,13 @@ function loadHikemoji() {
 
 		console.log('hikemoji:', hikemoji)
 		hikemoji.scene.traverse((child) => {
-				if (!child.isMesh) return
-				var prevMaterial = child.material
-				child.material = new THREE.MeshStandardMaterial()
-				THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
+			if (!child.isMesh) return
+			var prevMaterial = child.material
+			child.material = new THREE.MeshStandardMaterial()
+			THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
 
-				configureMaterial(child)
-				console.log(child.name, child)
+			configureMaterial(child)
+			console.log(child.name, child)
 		})
 
 		scene.add( hikemoji.scene )
@@ -250,7 +250,7 @@ var guiOptions = {
 	}
 }
 
-var gui = new GUI()
+const gui = new GUI()
 gui.add(guiOptions, 'capture')
 gui.add(guiOptions, 'background')
 gui.add(guiOptions, 'light_controls')
@@ -285,6 +285,46 @@ hikemoji.scene.traverse((child) => {
 		materialFolder.add(child.material, 'roughness', 0, 1, 0.01)
 	}
 })
+
+
+function getMeshFromParser(meshName) {
+	const meshes = hikemoji.parser.json.meshes
+	for(var i=0; i<meshes.length; i++) {
+		if(meshes[i].name === meshName) return meshes[i]
+	}
+	return undefined
+}
+
+
+const accessors = hikemoji.parser.json.accessors
+const blendshapeGui = new GUI()
+hikemoji.scene.traverse((child) => {
+	
+	if(child.isMesh && 'morphTargetInfluences' in child) {
+
+		const mesh = getMeshFromParser(child.name)
+		let blendshapeNames
+		if(mesh != undefined) {
+			const primitives = mesh.primitives[0]
+			if ('targets' in primitives) {
+				const positions = primitives.targets.map((elem) => elem.POSITION)
+				blendshapeNames = positions.map((idx) => {
+					const meshBlendshapeName = accessors[idx].name
+					const blendshapeName = meshBlendshapeName.split('.')[1]
+					return blendshapeName
+				})
+			}
+		}
+		console.log('Name:', child.name, '\tBlendshapes:', blendshapeNames)
+
+		const folder = blendshapeGui.addFolder(child.name)
+		for(var i=0; i<child.morphTargetInfluences.length; i++) {
+			folder.add(child.morphTargetInfluences, i, -1, 1, 0.01).name(blendshapeNames[i])
+		}
+	}
+
+})
+
 
 const loadTime = clock.getElapsedTime()
 console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
