@@ -58,9 +58,6 @@ camera.position.set(-0.72887, 0.0177, 2.89399)
 camera.rotation.set(-0.001526, -0.23239, -0.00035)
 camera.fov = 50
 
-const mouse = new THREE.Vector2()
-const raycaster = new THREE.Raycaster();
-
 
 function loadFile(path, loader) {
 	return new Promise((resolve, reject) => {
@@ -115,6 +112,19 @@ function loadHikemoji() {
 }
 
 await loadHikemoji()
+
+const lodObject = hikemoji.scene.children[0].children[0]
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.5)
+dirLight.target = lodObject
+const posX = lodObject.position.x + (camera.position.x - lodObject.position.x) * 1.1
+const posY = lodObject.position.y + (camera.position.y - lodObject.position.y) * 1.1
+const posZ = lodObject.position.z + (camera.position.z - lodObject.position.z) * 1.1
+dirLight.position.set(posX, posY, posZ)
+scene.add(dirLight)
+
+const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 5, '#FF0000')
+scene.add(dirLightHelper)
 
 // Add floor
 const floorGeometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 )
@@ -173,10 +183,9 @@ orbitControls.maxDistance = 10
 orbitControls.target.set( 0, 0, -0.2)
 orbitControls.update()
 
-const draggableObjects = [hikemoji.scene.children[0].children[0],
-													cubeHelper1,
-													cubeHelper2,
-													cubeHelper3]
+const draggableObjects = [ cubeHelper1,
+						   cubeHelper2,
+						   cubeHelper3 ]
 const dragControls = new DragControls( draggableObjects, camera, renderer.domElement )
 dragControls.addEventListener( 'dragstart', function ( event ) {
 	orbitControls.enabled = false
@@ -228,6 +237,7 @@ var guiOptions = {
 		cubeHelper1.visible = !isOn
 		cubeHelper2.visible = !isOn
 		cubeHelper3.visible = !isOn
+		dirLightHelper.visible = !isOn
 	},
 	orbit_controls: function() {
 		const isOn = orbitControls.enabled
@@ -244,13 +254,25 @@ gui.add(guiOptions, 'orbit_controls')
 
 const PI = 3.14
 const light1Folder = gui.addFolder('Light1')
-light1Folder.add(pt_light1, 'intensity', 0 , 5, 0.01)
+light1Folder.add(pt_light1, 'intensity', 0 , 1, 0.01)
 light1Folder.addColor({color: pt_light1.color}, 'color').onChange( function(colorValue){
-	// colorValue=colorValue.replace('#', '0x');
-	console.log('colorValue:', colorValue)
 	pt_light1.color.r = colorValue.r
 	pt_light1.color.g = colorValue.g
 	pt_light1.color.b = colorValue.b
+} )
+const light2Folder = gui.addFolder('Light2')
+light2Folder.add(pt_light2, 'intensity', 0 , 1, 0.01)
+light2Folder.addColor({color: pt_light2.color}, 'color').onChange( function(colorValue){
+	pt_light2.color.r = colorValue.r
+	pt_light2.color.g = colorValue.g
+	pt_light2.color.b = colorValue.b
+} )
+const light3Folder = gui.addFolder('Light3')
+light3Folder.add(pt_light3, 'intensity', 0 , 1, 0.01)
+light3Folder.addColor({color: pt_light3.color}, 'color').onChange( function(colorValue){
+	pt_light3.color.r = colorValue.r
+	pt_light3.color.g = colorValue.g
+	pt_light3.color.b = colorValue.b
 } )
 
 function animate() {
