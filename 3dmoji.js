@@ -286,9 +286,19 @@ hikemoji.scene.traverse((child) => {
 	}
 })
 
+const loadTime = clock.getElapsedTime()
+console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
+
+let numFramesRendered = 0
 function animate() {
+	numFramesRendered += 1
 	requestAnimationFrame(animate)
 	renderer.render(scene, camera)
+
+	if(numFramesRendered == 1000) {
+		const time_1000_frames = clock.getElapsedTime() - loadTime
+		console.log('1000 frames loaded in', clock.getElapsedTime(), 'seconds.')
+	}
 }
 requestAnimationFrame(animate)
 
