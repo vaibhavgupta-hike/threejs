@@ -54,10 +54,6 @@ scene.add(helper3)
 const cubeHelper3 = getCubeLight(pt_light3)
 scene.add(cubeHelper3)
 
-console.log('pt_light1:', pt_light1)
-console.log('pt_light2:', pt_light2)
-console.log('pt_light3:', pt_light3)
-
 const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 )
 camera.position.set(-0.72887, 0.0177, 2.89399)
 camera.rotation.set(-0.001526, -0.23239, -0.00035)
@@ -71,7 +67,6 @@ function loadFile(path, loader) {
 			resolve(object)
 		},
 		(progress) => {
-			console.log("progress:", progress)
 		} ,
 		(error) => {
 			reject(error)
@@ -108,7 +103,6 @@ function loadHikemoji() {
 			THREE.MeshBasicMaterial.prototype.copy.call(child.material, prevMaterial)
 
 			configureMaterial(child)
-			console.log(child.name, child)
 		})
 
 		scene.add( hikemoji.scene )
@@ -156,8 +150,6 @@ container.appendChild(renderer.domElement)
 
 function screenshot(fname, renderer) {
 	return new Promise((resolve, reject) => {
-		console.log('camera position', camera.position)
-		console.log('camera rotation', camera.rotation)
 		renderer.render(scene, camera)
 		let base64String = renderer.domElement.toDataURL()
 		let base64Image = base64String.split('base64,').pop()
@@ -298,7 +290,6 @@ function getPrimitiveFromParser(meshName) {
 	const pattern_meshName = /[a-zA-Z_]+\d*[a-zA-Z_]+/
 	var name = meshName.match(pattern_meshName)[0]
 	if(name.charAt(name.length - 1) === '_') {
-		console.log('Last character underscore')
 		name = name.substr(0, name.length - 1)
 	}
 	const mesh = getMeshFromParser(name)
@@ -307,8 +298,6 @@ function getPrimitiveFromParser(meshName) {
 	const pattern_primitiveNum = /\d*$/
 	var primitiveNum = meshName.match(pattern_primitiveNum)[0]
 	primitiveNum = (primitiveNum === "") ? 1 : parseInt(primitiveNum)
-	console.log('meshName:', meshName, 'name:', name, 'primitiveNum:', primitiveNum)
-	console.log('mesh:', mesh)
 	return mesh.primitives[primitiveNum-1]	// 1-indexed vs 0-indexed
 }
 
@@ -332,7 +321,6 @@ hikemoji.scene.traverse((child) => {
 				return blendshapeName
 			})
 		}
-		console.log('Name:', child.name, '\tBlendshapes:', blendshapeNames)
 
 		const folder = blendshapeGui.addFolder(child.name)
 		for(var i=0; i<child.morphTargetInfluences.length; i++) {
@@ -367,12 +355,10 @@ const blendshapesDictConceptArt = {
 	'Jaw_Back_Thickness': -50
 }
 
-console.log('Iterating over a dict')
 for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictConceptArt)) {
 	
 	const morphInfluencesList = blendshapeNameToMorphTargetInfluenceDict[blendshapeName]
 	for(var i=0; i<morphInfluencesList.length; i++) {
-		console.log('morphInfluencesList[i]:', morphInfluencesList[i])
 		const mesh = morphInfluencesList[i]['mesh']
 		const idx = morphInfluencesList[i]['idx']
 
@@ -428,5 +414,4 @@ function addBlendshapeAndMorphTargetInfluenceToDict(blendshapeName, mesh, idx) {
 		'mesh': mesh,
 		'idx': idx
 	} )
-	console.log('blendshapeNameToMorphTargetInfluenceDict[baseBlendshapeName]:', blendshapeNameToMorphTargetInfluenceDict[baseBlendshapeName])
 }
