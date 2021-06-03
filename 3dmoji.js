@@ -261,23 +261,17 @@ const PI = 3.14
 const light1Folder = gui.addFolder('Light1')
 light1Folder.add(pt_light1, 'intensity', 0 , 5, 0.01)
 light1Folder.addColor({color: pt_light1.color}, 'color').onChange( function(colorValue){
-	pt_light1.color.r = colorValue.r / 255.0
-	pt_light1.color.g = colorValue.g / 255.0
-	pt_light1.color.b = colorValue.b / 255.0
+	assignColorToObjFromColorBar(pt_light1, colorValue)
 } )
 const light2Folder = gui.addFolder('Light2')
 light2Folder.add(pt_light2, 'intensity', 0 , 5, 0.01)
 light2Folder.addColor({color: pt_light2.color}, 'color').onChange( function(colorValue){
-	pt_light2.color.r = colorValue.r / 255.0
-	pt_light2.color.g = colorValue.g / 255.0
-	pt_light2.color.b = colorValue.b / 255.0
+	assignColorToObjFromColorBar(pt_light2, colorValue)
 } )
 const light3Folder = gui.addFolder('Light3')
 light3Folder.add(pt_light3, 'intensity', 0 , 5, 0.01)
 light3Folder.addColor({color: pt_light3.color}, 'color').onChange( function(colorValue){
-	pt_light3.color.r = colorValue.r / 255.0
-	pt_light3.color.g = colorValue.g / 255.0
-	pt_light3.color.b = colorValue.b / 255.0
+	assignColorToObjFromColorBar(pt_light3, colorValue)
 } )
 hikemoji.scene.traverse((child) => {
 	if(child.isMesh && child.material instanceof THREE.MeshStandardMaterial) {
@@ -287,12 +281,17 @@ hikemoji.scene.traverse((child) => {
 	}
 })
 
+function assignColorToObjFromColorBar(obj, colorBar) {
+	obj.color.r = colorBar.r / 255.0
+	obj.color.g = colorBar.g / 255.0
+	obj.color.b = colorBar.b / 255.0
+}
+
 function getMeshFromParser(meshName) {
 	const meshes = hikemoji.parser.json.meshes
 	for(var i=0; i<meshes.length; i++) {
 		if(meshes[i].name === meshName) return meshes[i]
 	}
-	return undefined
 }
 
 function getPrimitiveFromParser(meshName) {
