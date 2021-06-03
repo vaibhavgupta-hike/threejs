@@ -4,6 +4,7 @@ import { DragControls } from 'https://threejs.org/examples/jsm/controls/DragCont
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js'
 import { RGBELoader } from 'https://threejs.org/examples/jsm/loaders/RGBELoader.js'
 import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js'
+const assert = require('assert')
 
 
 function getCubeLight(lightObject) {
@@ -286,7 +287,6 @@ hikemoji.scene.traverse((child) => {
 	}
 })
 
-
 function getMeshFromParser(meshName) {
 	const meshes = hikemoji.parser.json.meshes
 	for(var i=0; i<meshes.length; i++) {
@@ -295,6 +295,23 @@ function getMeshFromParser(meshName) {
 	return undefined
 }
 
+function getPrimitiveFromParser(meshName) {
+	const pattern_meshName = /[a-zA-Z_]+\d*[a-zA-Z_]+/
+	var name = meshName.match(pattern_meshName)[0]
+	if(name.charAt(name.length - 1) === '_') {
+		console.log('Last character underscore')
+		name = name.substr(0, name.length - 1)
+	}
+	const mesh = getMeshFromParser(name)
+	// assert(mesh != undefined)
+
+	const pattern_primitiveNum = /\d*$/
+	var primitiveNum = meshName.match(pattern_primitiveNum)[0]
+	primitiveNum = (primitiveNum === "") ? 1 : parseInt(primitiveNum)
+	console.log('meshName:', meshName, 'name:', name, 'primitiveNum:', primitiveNum)
+	console.log('mesh:', mesh)
+	return mesh.primitives[primitiveNum-1]	// 1-indexed vs 0-indexed
+}
 
 const accessors = hikemoji.parser.json.accessors
 const blendshapeGui = new GUI()
@@ -303,17 +320,16 @@ hikemoji.scene.traverse((child) => {
 	if(child.isMesh && 'morphTargetInfluences' in child) {
 
 		const mesh = getMeshFromParser(child.name)
+		const primitives = getPrimitiveFromParser(child.name)
 		let blendshapeNames
-		if(mesh != undefined) {
-			const primitives = mesh.primitives[0]
-			if ('targets' in primitives) {
-				const positions = primitives.targets.map((elem) => elem.POSITION)
-				blendshapeNames = positions.map((idx) => {
-					const meshBlendshapeName = accessors[idx].name
-					const blendshapeName = meshBlendshapeName.split('.')[1]
-					return blendshapeName
-				})
-			}
+		
+		if ('targets' in primitives) {
+			const positions = primitives.targets.map((elem) => elem.POSITION)
+			blendshapeNames = positions.map((idx) => {
+				const meshBlendshapeName = accessors[idx].name
+				const blendshapeName = meshBlendshapeName.split('.')[1]
+				return blendshapeName
+			})
 		}
 		console.log('Name:', child.name, '\tBlendshapes:', blendshapeNames)
 
