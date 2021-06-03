@@ -25,7 +25,7 @@ const container = document.createElement( 'div' )
 document.body.appendChild(container)
 
 const pt_light1 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.00 )
-pt_light1.position.set(-0.855, -0.1, 0.88)
+pt_light1.position.set(-0.32075, 0.3954, -0.3553)
 scene.add(pt_light1)
 
 const cubeHelper1 = getCubeLight(pt_light1)
@@ -35,7 +35,7 @@ const helper1 = new THREE.PointLightHelper( pt_light1, 0.5, 0xFF0000 )
 scene.add(helper1)
 
 const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
-pt_light2.position.set(-0.094, 0.875, -0.195)
+pt_light2.position.set(-0.07755, 0.87727, 0.17885)
 scene.add(pt_light2)
 
 const helper2 = new THREE.PointLightHelper( pt_light2, 0.5, 0xFF0000 )
@@ -45,7 +45,7 @@ const cubeHelper2 = getCubeLight(pt_light2)
 scene.add(cubeHelper2)
 
 const pt_light3 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
-pt_light3.position.set(-0.665, -0.467, -0.510)
+pt_light3.position.set(-0.68988, -0.70874, 0.38014)
 scene.add(pt_light3)
 
 const helper3 = new THREE.PointLightHelper( pt_light3, 0.5, 0xFF0000 )
@@ -167,8 +167,10 @@ const pmremGenerator = new THREE.PMREMGenerator( renderer )
 pmremGenerator.compileEquirectangularShader()
 const envMap = pmremGenerator.fromEquirectangular( bgTexture ).texture
 
-scene.background = null
-scene.environment = null
+const bgColor = new THREE.Color( 0xF1F1F1 )
+
+scene.background = bgColor
+scene.environment = bgColor
 
 bgTexture.dispose()
 pmremGenerator.dispose()
@@ -217,13 +219,14 @@ var guiOptions = {
 		renderer.render(scene, camera)
 		captureScreenshot(renderer, fname)
 	},
-	background: function() {
-		if(scene.background === null) {
-			scene.background = envMap
-			scene.environment = envMap
-		} else {
+	background: {
+		transparent: function() {
 			scene.background = null
 			scene.environment = null
+		},
+		texture: function() {
+			scene.background = envMap
+			scene.environment = envMap
 		}
 	},
 	light_controls: function() {
@@ -245,9 +248,18 @@ var guiOptions = {
 
 const gui = new GUI()
 gui.add(guiOptions, 'capture')
-gui.add(guiOptions, 'background')
 gui.add(guiOptions, 'light_controls')
 gui.add(guiOptions, 'orbit_controls')
+const bgFolder = gui.addFolder('Background')
+bgFolder.add(guiOptions.background, 'transparent')
+bgFolder.add(guiOptions.background, 'texture')
+bgFolder.addColor({color: bgColor}, 'color').onChange( function(colorValue){
+	bgColor.r = colorValue.r / 255.0
+	bgColor.g = colorValue.g / 255.0
+	bgColor.b = colorValue.b / 255.0
+	scene.background = bgColor
+	scene.environment = bgColor
+} )
 
 const PI = 3.14
 const light1Folder = gui.addFolder('Light1')
@@ -380,6 +392,10 @@ function animate() {
 		const time_1000_frames = clock.getElapsedTime() - loadTime
 		console.log('1000 frames loaded in', clock.getElapsedTime(), 'seconds.')
 	}
+
+	console.log('pt_light1:', pt_light1.position)
+	console.log('pt_light2:', pt_light2.position)
+	console.log('pt_light3:', pt_light3.position)
 }
 requestAnimationFrame(animate)
 
