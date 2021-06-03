@@ -169,8 +169,8 @@ const envMap = pmremGenerator.fromEquirectangular( bgTexture ).texture
 
 const bgColor = new THREE.Color( 0xF1F1F1 )
 
-scene.background = bgColor
-scene.environment = bgColor
+scene.background = null
+scene.environment = null
 
 bgTexture.dispose()
 pmremGenerator.dispose()
