@@ -312,6 +312,8 @@ function getPrimitiveFromParser(meshName) {
 	return mesh.primitives[primitiveNum-1]	// 1-indexed vs 0-indexed
 }
 
+
+const blendshapeNameToMorphTargetInfluenceDict = {}
 const accessors = hikemoji.parser.json.accessors
 const blendshapeGui = new GUI()
 hikemoji.scene.traverse((child) => {
@@ -334,12 +336,50 @@ hikemoji.scene.traverse((child) => {
 
 		const folder = blendshapeGui.addFolder(child.name)
 		for(var i=0; i<child.morphTargetInfluences.length; i++) {
-			folder.add(child.morphTargetInfluences, i, -1, 1, 0.01).name(blendshapeNames[i])
+			const blendshape_name = blendshapeNames[i]
+			child.morphTargetInfluences[i] = 0
+			folder.add(child.morphTargetInfluences, i, -1, 1, 0.01).name(blendshape_name)
+
+			addBlendshapeAndMorphTargetInfluenceToDict(blendshape_name, child, i)
 		}
 	}
 
 })
 
+const blendshapesDictConceptArt = {
+	'L_Lip_Con_Out': -6.9,
+	'R_Lip_Con_Out': -6.9,
+	'Lip_Fr': -8.6,
+	'L_Cheekbone_Out': -21.7,
+	'L_Cheekbone_Fr': -17.2,
+	'L_Cheek_Out': 61.5,
+	'L_Jaw_Out': 8.2, 
+	'L_Jaw_Fr': -5.3,
+	'R_Cheekbone_Out': -21.7,
+	'R_Cheekbone_Bk': 17.2,
+	'R_Cheek_Out': 61.5,
+	'R_Jaw_Out': 8.2,
+	'R_Jaw_Bk': 5.3,
+	'M_Chin_Up': 30.8,
+	'Up_Lip_Thick': -15,
+	'Low_Lip_Thick': 18,
+	'Round_Chin': -10,
+	'Jaw_Back_Thickness': -50
+}
+
+console.log('Iterating over a dict')
+for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictConceptArt)) {
+	
+	const morphInfluencesList = blendshapeNameToMorphTargetInfluenceDict[blendshapeName]
+	for(var i=0; i<morphInfluencesList.length; i++) {
+		console.log('morphInfluencesList[i]:', morphInfluencesList[i])
+		const mesh = morphInfluencesList[i]['mesh']
+		const idx = morphInfluencesList[i]['idx']
+
+		mesh.morphTargetInfluences[idx] = blendshapeValue / 100.0
+	}
+}
+blendshapeGui.updateDisplay()
 
 const loadTime = clock.getElapsedTime()
 console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
@@ -369,4 +409,24 @@ function adjustPositionOf1wrt2(obj1, obj2) {
 	obj1.position.x = obj2.position.x
 	obj1.position.y = obj2.position.y
 	obj1.position.z = obj2.position.z
+}
+
+function addBlendshapeAndMorphTargetInfluenceToDict(blendshapeName, mesh, idx) {
+	const meshName = mesh.name
+	var meshNameWithoutGeo = meshName.substr(0, meshName.length - 4)
+
+	var baseBlendshapeName = blendshapeName
+	if((meshNameWithoutGeo.length < baseBlendshapeName.length) && 
+		(baseBlendshapeName.substr(baseBlendshapeName.length - meshNameWithoutGeo.length) === meshNameWithoutGeo)) {
+		baseBlendshapeName = baseBlendshapeName.substr(0, baseBlendshapeName.length - meshNameWithoutGeo.length - 1) // Additional 1 for underscore
+	}
+
+	if (! (baseBlendshapeName in blendshapeNameToMorphTargetInfluenceDict)) {
+		blendshapeNameToMorphTargetInfluenceDict[baseBlendshapeName] = []
+	}
+	blendshapeNameToMorphTargetInfluenceDict[baseBlendshapeName].push( {
+		'mesh': mesh,
+		'idx': idx
+	} )
+	console.log('blendshapeNameToMorphTargetInfluenceDict[baseBlendshapeName]:', blendshapeNameToMorphTargetInfluenceDict[baseBlendshapeName])
 }
