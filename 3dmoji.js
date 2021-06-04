@@ -35,7 +35,7 @@ const helper1 = new THREE.PointLightHelper( pt_light1, 0.5, 0xFF0000 )
 scene.add(helper1)
 
 const pt_light2 = new THREE.PointLight( 0xFFFFFF, 1.0, 0.00, 1.0 )
-pt_light2.position.set(-0.07755, 0.87727, 0.17885)
+pt_light2.position.set(-0.0894, 0.8812, 0.03627)
 scene.add(pt_light2)
 
 const helper2 = new THREE.PointLightHelper( pt_light2, 0.5, 0xFF0000 )
@@ -378,6 +378,7 @@ for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictCo
 	}
 }
 blendshapeGui.updateDisplay()
+hikemoji.needsUpdate = true
 
 const loadTime = clock.getElapsedTime()
 console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
