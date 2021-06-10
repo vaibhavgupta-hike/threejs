@@ -90,8 +90,8 @@ function configureMaterial(child) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/Male_Pose2_out/')
-		hikemoji = await loadFile('Male_Pose2.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_A_out/')
+		hikemoji = await loadFile('Male_LOD_A_V21_A.gltf', loader)
 
 		hikemoji.scene.children[0].children[0].position.set(0, -1, 0)
 
@@ -314,71 +314,71 @@ function getPrimitiveFromParser(meshName) {
 }
 
 
-const blendshapeNameToMorphTargetInfluenceDict = {}
-const accessors = hikemoji.parser.json.accessors
-const blendshapeGui = new GUI()
-hikemoji.scene.traverse((child) => {
+// const blendshapeNameToMorphTargetInfluenceDict = {}
+// const accessors = hikemoji.parser.json.accessors
+// const blendshapeGui = new GUI()
+// hikemoji.scene.traverse((child) => {
 	
-	if(child.isMesh && 'morphTargetInfluences' in child) {
+	// if(child.isMesh && 'morphTargetInfluences' in child) {
 
-		const mesh = getMeshFromParser(child.name)
-		const primitives = getPrimitiveFromParser(child.name)
-		let blendshapeNames
+	// 	const mesh = getMeshFromParser(child.name)
+	// 	const primitives = getPrimitiveFromParser(child.name)
+	// 	let blendshapeNames
 		
-		if ('targets' in primitives) {
-			const positions = primitives.targets.map((elem) => elem.POSITION)
-			blendshapeNames = positions.map((idx) => {
-				const meshBlendshapeName = accessors[idx].name
-				const blendshapeName = meshBlendshapeName.split('.')[1]
-				return blendshapeName
-			})
-		}
+	// 	if ('targets' in primitives) {
+	// 		const positions = primitives.targets.map((elem) => elem.POSITION)
+	// 		blendshapeNames = positions.map((idx) => {
+	// 			const meshBlendshapeName = accessors[idx].name
+	// 			const blendshapeName = meshBlendshapeName.split('.')[1]
+	// 			return blendshapeName
+	// 		})
+	// 	}
 
-		const folder = blendshapeGui.addFolder(child.name)
-		for(var i=0; i<child.morphTargetInfluences.length; i++) {
-			const blendshape_name = blendshapeNames[i]
-			child.morphTargetInfluences[i] = 0
-			folder.add(child.morphTargetInfluences, i, -1, 1, 0.01).name(blendshape_name)
+	// 	const folder = blendshapeGui.addFolder(child.name)
+	// 	for(var i=0; i<child.morphTargetInfluences.length; i++) {
+	// 		const blendshape_name = blendshapeNames[i]
+	// 		child.morphTargetInfluences[i] = 0
+	// 		folder.add(child.morphTargetInfluences, i, -1, 1, 0.01).name(blendshape_name)
 
-			addBlendshapeAndMorphTargetInfluenceToDict(blendshape_name, child, i)
-		}
-	}
+	// 		addBlendshapeAndMorphTargetInfluenceToDict(blendshape_name, child, i)
+	// 	}
+	// }
 
-})
+// })
 
-const blendshapesDictConceptArt = {
-	'L_Lip_Con_Out': -6.9,
-	'R_Lip_Con_Out': -6.9,
-	'Lip_Fr': -8.6,
-	'L_Cheekbone_Out': -21.7,
-	'L_Cheekbone_Fr': -17.2,
-	'L_Cheek_Out': 61.5,
-	'L_Jaw_Out': 8.2, 
-	'L_Jaw_Fr': -5.3,
-	'R_Cheekbone_Out': -21.7,
-	'R_Cheekbone_Bk': 17.2,
-	'R_Cheek_Out': 61.5,
-	'R_Jaw_Out': 8.2,
-	'R_Jaw_Bk': 5.3,
-	'M_Chin_Up': 30.8,
-	'Up_Lip_Thick': -15,
-	'Low_Lip_Thick': 18,
-	'Round_Chin': -10,
-	'Jaw_Back_Thickness': -50
-}
+// const blendshapesDictConceptArt = {
+// 	'L_Lip_Con_Out': -6.9,
+// 	'R_Lip_Con_Out': -6.9,
+// 	'Lip_Fr': -8.6,
+// 	'L_Cheekbone_Out': -21.7,
+// 	'L_Cheekbone_Fr': -17.2,
+// 	'L_Cheek_Out': 61.5,
+// 	'L_Jaw_Out': 8.2, 
+// 	'L_Jaw_Fr': -5.3,
+// 	'R_Cheekbone_Out': -21.7,
+// 	'R_Cheekbone_Bk': 17.2,
+// 	'R_Cheek_Out': 61.5,
+// 	'R_Jaw_Out': 8.2,
+// 	'R_Jaw_Bk': 5.3,
+// 	'M_Chin_Up': 30.8,
+// 	'Up_Lip_Thick': -15,
+// 	'Low_Lip_Thick': 18,
+// 	'Round_Chin': -10,
+// 	'Jaw_Back_Thickness': -50
+// }
 
-for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictConceptArt)) {
+// for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictConceptArt)) {
 	
-	const morphInfluencesList = blendshapeNameToMorphTargetInfluenceDict[blendshapeName]
-	for(var i=0; i<morphInfluencesList.length; i++) {
-		const mesh = morphInfluencesList[i]['mesh']
-		const idx = morphInfluencesList[i]['idx']
+// 	const morphInfluencesList = blendshapeNameToMorphTargetInfluenceDict[blendshapeName]
+// 	for(var i=0; i<morphInfluencesList.length; i++) {
+// 		const mesh = morphInfluencesList[i]['mesh']
+// 		const idx = morphInfluencesList[i]['idx']
 
-		mesh.morphTargetInfluences[idx] = blendshapeValue / 100.0
-	}
-}
-blendshapeGui.updateDisplay()
-hikemoji.needsUpdate = true
+// 		mesh.morphTargetInfluences[idx] = blendshapeValue / 100.0
+// 	}
+// }
+// blendshapeGui.updateDisplay()
+// hikemoji.needsUpdate = true
 
 const loadTime = clock.getElapsedTime()
 console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
