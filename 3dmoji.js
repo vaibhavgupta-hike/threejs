@@ -87,7 +87,7 @@ function configureMaterial(child) {
 	}
 }
 
-let hikemoji
+let hikemoji, mixer
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
 		const loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_A_out/')
@@ -107,6 +107,10 @@ function loadHikemoji() {
 
 		scene.add( hikemoji.scene )
 		resolve()
+
+		mixer = new THREE.AnimationMixer(hikemoji.scene)
+		const animationClip = hikemoji.animations[0]
+		mixer.clipAction(animationClip).play()
 	})
 }
 
@@ -386,6 +390,8 @@ console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
 let numFramesRendered = 0
 function animate() {
 	numFramesRendered += 1
+
+	if(mixer) mixer.update(clock.getDelta())
 	requestAnimationFrame(animate)
 	renderer.render(scene, camera)
 
@@ -393,10 +399,6 @@ function animate() {
 		const time_1000_frames = clock.getElapsedTime() - loadTime
 		console.log('1000 frames loaded in', clock.getElapsedTime(), 'seconds.')
 	}
-
-	console.log('pt_light1:', pt_light1.position)
-	console.log('pt_light2:', pt_light2.position)
-	console.log('pt_light3:', pt_light3.position)
 }
 requestAnimationFrame(animate)
 
