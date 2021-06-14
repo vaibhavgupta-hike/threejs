@@ -60,6 +60,43 @@ camera.rotation.set(-0.001526, -0.23239, -0.00035)
 camera.fov = 50
 
 
+class TransitionGenerator {
+
+	constructor(list_animations, list_names) {
+		this.base_animations = {}
+		
+		for(var idx = 0; idx < list_animations.length; idx += 1) {
+			const animation = list_animations[idx]
+			const name = list_names[idx]
+			const duration = animation.duration
+			const dictInterpolants = this._getDictInterpolants(list_animations[idx])
+
+			this.base_animations[name] = {
+				'duration': duration,
+				'dictInterpolants': dictInterpolants
+			}
+		}
+
+	}
+
+	_getDictInterpolants(animation) {
+		const dictInterpolants = {}
+
+		const tracks = animation.tracks
+		for(var idx = 0; idx < tracks.length; idx += 1) {
+			const track = tracks[idx]
+			const name = track.name
+			if (name.includes('morphTargetInfluences')) continue
+
+			const interpolant = track.createInterpolant()
+			dictInterpolants[name] = interpolant
+		}
+		return dictInterpolants
+	}
+
+}
+
+
 function loadFile(path, loader) {
 	return new Promise((resolve, reject) => {
 
@@ -120,8 +157,30 @@ function loadHikemoji() {
 		resolve()
 
 		mixer = new THREE.AnimationMixer(hikemoji.scene)
-		const animationClip = hikemoji.animations[0]
+
+
+		const a_loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_A_out/')
+		const hikemoji_a = await loadFile('Male_LOD_A_V21_A.gltf', a_loader)
+
+		const e_loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_E_out/')
+		const hikemoji_e = await loadFile('Male_LOD_A_V21_E.gltf', e_loader)
+
+		const i_loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_I_out/')
+		const hikemoji_i = await loadFile('Male_LOD_A_V21_I.gltf', i_loader)
+
+		const o_loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_O_out/')
+		const hikemoji_o = await loadFile('Male_LOD_A_V21_O.gltf', o_loader)
+
+		const anim_a = hikemoji_a.animations[0]
+		const anim_e = hikemoji_e.animations[0]
+		const anim_i = hikemoji_i.animations[0]
+		const anim_o = hikemoji_o.animations[0]
+
+		const animationClip = anim_e
 		mixer.clipAction(animationClip).play()
+
+		const transitionGenerator = new TransitionGenerator([anim_a, anim_e, anim_i, anim_o], ['A', 'E', 'I', 'O'])
+		console.log('transitionGenerator:', transitionGenerator)
 	})
 }
 
