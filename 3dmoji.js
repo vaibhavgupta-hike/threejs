@@ -79,6 +79,15 @@ class TransitionGenerator {
 
 	}
 
+	getAnimationValueAtIntensity(animationName, intensity) {
+		if(!animationName in this.base_animations) throw 'Animation Name not recognized'
+		if(intensity < 0 || intensity > 1) throw 'intensity must be between 0 and 1'
+
+		const animationObject = this.base_animations[animationName]
+		const time = animationObject.duration * intensity
+		return this.getAnimationValueAtTime(animationName, time)
+	}
+
 	getAnimationValueAtTime(animationName, time) {
 		if(!animationName in this.base_animations) throw 'Animation Name not recognized'
 		const animationObject = this.base_animations[animationName]
@@ -193,7 +202,7 @@ function loadHikemoji() {
 
 		const transitionGenerator = new TransitionGenerator([anim_a, anim_e, anim_i, anim_o], ['A', 'E', 'I', 'O'])
 		console.log('transitionGenerator:', transitionGenerator)
-		console.log( 'transitionGenerator.getAnimationValueAtTime("A", 0.1):', transitionGenerator.getAnimationValueAtTime('A', 0.1) )
+		console.log( 'transitionGenerator.getAnimationValueAtIntensity("A", 0.1):', transitionGenerator.getAnimationValueAtIntensity('A', 0.1) )
 	})
 }
 
