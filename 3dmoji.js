@@ -87,11 +87,22 @@ function configureMaterial(child) {
 	}
 }
 
+function writeObjectToJsonFile(obj, filename) {
+	const jsonString = JSON.stringify(obj)
+	fs.writeFile(filename, jsonString, err => {
+	    if (err) {
+	        console.log('Error writing animations file', err)
+	    } else {
+	        console.log('Successfully wrote animations file')
+	    }
+	})
+}
+
 let hikemoji, mixer
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_A_out/')
-		hikemoji = await loadFile('Male_LOD_A_V21_A.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/Male_LOD_A_V21_O_out/')
+		hikemoji = await loadFile('Male_LOD_A_V21_O.gltf', loader)
 
 		hikemoji.scene.children[0].children[0].position.set(0, -1, 0)
 
