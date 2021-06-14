@@ -84,6 +84,7 @@ class TransitionGenerator {
 		if(intensity < 0 || intensity > 1) throw 'intensity must be between 0 and 1'
 
 		const animationObject = this.base_animations[animationName]
+		console.log('animationObject:', animationObject)
 		const time = animationObject.duration * intensity
 		return this.getAnimationValueAtTime(animationName, time)
 	}
@@ -95,9 +96,53 @@ class TransitionGenerator {
 
 		const interpolantsValues = {}
 		for (var key of Object.keys(animationObject['dictInterpolants'])) {
-		    interpolantsValues[key] = animationObject['dictInterpolants'][key]
+		    interpolantsValues[key] = animationObject['dictInterpolants'][key].evaluate(time)
 		}
 		return interpolantsValues
+	}
+
+	_addAnimationValues(...args) {
+		const resultAnimationValues = {}
+
+		for(var idx = 0; idx < args.length; idx += 1) {
+			const animationValues = args[idx]
+			console.log('Individual:', animationValues)
+
+			for(var key of Object.keys(animationValues)) {
+				resultAnimationValues[key] = new Array( animationValues[key].length ).fill(0)
+			}
+		}
+
+		for(var idx = 0; idx < args.length; idx += 1) {
+			const animationValues = args[idx]
+
+			for(var key of Object.keys(animationValues)) {
+				resultAnimationValues[key] = this._addArrays(resultAnimationValues[key], animationValues[key])
+			}
+		}
+		return resultAnimationValues
+	}
+
+	_addArrays(arr1, arr2) {
+		if(arr1.length != arr2.length) throw 'To add arrays, their lengths must be the same'
+
+		const resultsArray = new Array(arr1.length).fill(0)
+		for(var idx = 0; idx < resultsArray.length; idx += 1) {
+			resultsArray[idx] = arr1[idx] + arr2[idx]
+		}
+		return resultsArray
+	}
+
+	_zeros_like(arr) {
+		var copyArr = []
+		for(var idx = 0; idx < arr.length; idx += 1) {
+			if( isArray(arr[idx]) ) {
+				copyArr[idx] = this._zeros_like(arr[idx])
+			} else {
+				copyArr[idx] = 0.0
+			}
+		}
+		return copyArr
 	}
 
 	_getDictInterpolants(animation) {
@@ -203,6 +248,13 @@ function loadHikemoji() {
 		const transitionGenerator = new TransitionGenerator([anim_a, anim_e, anim_i, anim_o], ['A', 'E', 'I', 'O'])
 		console.log('transitionGenerator:', transitionGenerator)
 		console.log( 'transitionGenerator.getAnimationValueAtIntensity("A", 0.1):', transitionGenerator.getAnimationValueAtIntensity('A', 0.1) )
+
+		const val1 = transitionGenerator.getAnimationValueAtIntensity('A', 0.1)
+		const val2 = transitionGenerator.getAnimationValueAtIntensity('E', 0.1)
+		const val3 = transitionGenerator.getAnimationValueAtIntensity('I', 0.9)
+
+		console.log( 'transitionGenerator._addAnimationValues(val1, val2, val3):', transitionGenerator._addAnimationValues(val1, val2, val3) )
+
 	})
 }
 
