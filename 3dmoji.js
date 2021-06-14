@@ -79,6 +79,18 @@ class TransitionGenerator {
 
 	}
 
+	getAnimationValueAtTime(animationName, time) {
+		if(!animationName in this.base_animations) throw 'Animation Name not recognized'
+		const animationObject = this.base_animations[animationName]
+		if(time < 0 || time > animationObject.duration) throw 'Time must be between 0 and ' + animationObject.duration
+
+		const interpolantsValues = {}
+		for (var key of Object.keys(animationObject['dictInterpolants'])) {
+		    interpolantsValues[key] = animationObject['dictInterpolants'][key]
+		}
+		return interpolantsValues
+	}
+
 	_getDictInterpolants(animation) {
 		const dictInterpolants = {}
 
@@ -181,6 +193,7 @@ function loadHikemoji() {
 
 		const transitionGenerator = new TransitionGenerator([anim_a, anim_e, anim_i, anim_o], ['A', 'E', 'I', 'O'])
 		console.log('transitionGenerator:', transitionGenerator)
+		console.log( 'transitionGenerator.getAnimationValueAtTime("A", 0.1):', transitionGenerator.getAnimationValueAtTime('A', 0.1) )
 	})
 }
 
