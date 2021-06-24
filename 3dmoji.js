@@ -90,10 +90,10 @@ function configureMaterial(child) {
 let hikemoji
 function loadHikemoji() {
 	return new Promise(async (resolve, reject) => {
-		const loader = new GLTFLoader().setPath('models/gltf/Male_Pose2_out/')
-		hikemoji = await loadFile('Male_Pose2.gltf', loader)
+		const loader = new GLTFLoader().setPath('models/gltf/server_poc/')
+		hikemoji = await loadFile('output.gltf', loader)
 
-		hikemoji.scene.children[0].children[0].position.set(0, -1, 0)
+		hikemoji.scene.position.set(0, -1, 0)
 
 		console.log('hikemoji:', hikemoji)
 		hikemoji.scene.traverse((child) => {
@@ -367,18 +367,18 @@ const blendshapesDictConceptArt = {
 	'Jaw_Back_Thickness': -50
 }
 
-for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictConceptArt)) {
+// for (const [blendshapeName, blendshapeValue] of Object.entries(blendshapesDictConceptArt)) {
 	
-	const morphInfluencesList = blendshapeNameToMorphTargetInfluenceDict[blendshapeName]
-	for(var i=0; i<morphInfluencesList.length; i++) {
-		const mesh = morphInfluencesList[i]['mesh']
-		const idx = morphInfluencesList[i]['idx']
+// 	const morphInfluencesList = blendshapeNameToMorphTargetInfluenceDict[blendshapeName]
+// 	for(var i=0; i<morphInfluencesList.length; i++) {
+// 		const mesh = morphInfluencesList[i]['mesh']
+// 		const idx = morphInfluencesList[i]['idx']
 
-		mesh.morphTargetInfluences[idx] = blendshapeValue / 100.0
-	}
-}
-blendshapeGui.updateDisplay()
-hikemoji.needsUpdate = true
+// 		mesh.morphTargetInfluences[idx] = blendshapeValue / 100.0
+// 	}
+// }
+// blendshapeGui.updateDisplay()
+// hikemoji.needsUpdate = true
 
 const loadTime = clock.getElapsedTime()
 console.log('HikeMoji, lights, background loaded in', loadTime, 'seconds.')
@@ -393,10 +393,6 @@ function animate() {
 		const time_1000_frames = clock.getElapsedTime() - loadTime
 		console.log('1000 frames loaded in', clock.getElapsedTime(), 'seconds.')
 	}
-
-	console.log('pt_light1:', pt_light1.position)
-	console.log('pt_light2:', pt_light2.position)
-	console.log('pt_light3:', pt_light3.position)
 }
 requestAnimationFrame(animate)
 
